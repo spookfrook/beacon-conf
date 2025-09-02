@@ -739,7 +739,7 @@ async def create_sol_call(signup: Signup):
     )
     
     # Fixed Sol's phone number
-    sol_phone = "+51981867746"
+    sol_phone = "+51922776803"
     
     # Generate room name
     participant_name = signup.name.replace(" ", "_")
