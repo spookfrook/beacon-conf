@@ -10,21 +10,24 @@
 #     "livekit",
 #     "livekit-api",
 #     "aiofiles",
+#     "httpx",
 # ]
 # ///
 
 import os
 import uuid
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
+import base64
 
 import peewee as pw
 from fastapi import FastAPI, Form, Request, File, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 import aiofiles
 from livekit import api
+import httpx
 
 # Database initialization
 db = pw.SqliteDatabase('conference_signups.db')
@@ -672,6 +675,57 @@ LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY", "")
 LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET", "")
 SIP_TRUNK_ID = os.getenv("SIP_TRUNK_ID", "ST_tUrKeAyozKMS")
 
+# Mailgun configuration
+MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
+MAILGUN_DOMAIN = "solmail.emptor-cdn.com"
+APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:8000")
+
+async def send_signup_email(signup: Signup):
+    """Send email notification for new signup using Mailgun"""
+    if not MAILGUN_API_KEY:
+        print("Mailgun API key not configured")
+        return False
+    
+    # Prepare email content
+    email_content = f"""
+Nueva inscripción en conferencia:
+
+Nombre: {signup.name}
+Email: {signup.email}
+Teléfono: {signup.phone}
+Descripción: {signup.description or 'No proporcionada'}
+
+Opciones seleccionadas:
+- Hablar con Sol: {'Sí' if signup.talk_to_sol else 'No'}
+- Quiere ejemplo de reporte: {'Sí' if signup.want_report_example else 'No'}
+
+Fecha de registro: {signup.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+"""
+    
+    # Add voice memo link if exists
+    if signup.voice_memo_path:
+        # Generate a secure token for the voice memo
+        token = base64.urlsafe_b64encode(f"{signup.id}:{signup.created_at.timestamp()}".encode()).decode()
+        voice_url = f"{APP_BASE_URL}/voice/{signup.id}?token={token}"
+        email_content += f"\nMemo de voz: {voice_url} (válido por 24 horas)"
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+                auth=("api", MAILGUN_API_KEY),
+                data={
+                    "from": f"Sol Conference <noreply@{MAILGUN_DOMAIN}>",
+                    "to": "gabriel@emptor.io",
+                    "subject": f"Nueva inscripción: {signup.name}",
+                    "text": email_content
+                }
+            )
+            return response.status_code == 200
+        except Exception as e:
+            print(f"Error sending email: {e}")
+            return False
+
 async def create_sol_call(signup: Signup):
     """Creates a SIP call with Sol for the signup"""
     if not all([LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET]):
@@ -716,6 +770,37 @@ async def create_sol_call(signup: Signup):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/voice/{signup_id}")
+async def get_voice_memo(signup_id: str, token: str):
+    """Serve voice memo with 24-hour expiration check"""
+    try:
+        # Get the signup
+        signup = Signup.get(Signup.id == signup_id)
+        
+        if not signup.voice_memo_path:
+            return HTMLResponse("No voice memo found", status_code=404)
+        
+        # Verify token and check expiration
+        try:
+            decoded = base64.urlsafe_b64decode(token.encode()).decode()
+            stored_id, timestamp = decoded.split(":")
+            created_time = float(timestamp)
+            
+            # Check if token matches and is less than 24 hours old
+            if stored_id != signup_id or (datetime.now().timestamp() - created_time) > 86400:
+                return HTMLResponse("Link expired or invalid", status_code=403)
+        except:
+            return HTMLResponse("Invalid token", status_code=403)
+        
+        # Serve the file
+        return FileResponse(
+            signup.voice_memo_path,
+            media_type="audio/wav",
+            filename=f"voice_memo_{signup.name.replace(' ', '_')}.wav"
+        )
+    except Signup.DoesNotExist:
+        return HTMLResponse("Signup not found", status_code=404)
 
 @app.post("/signup")
 async def signup(
@@ -764,6 +849,9 @@ async def signup(
     if talk_to_sol:
         call_result = await create_sol_call(signup)
         sol_call_initiated = call_result is not None
+    
+    # Send email notification
+    await send_signup_email(signup)
     
     return {
         "success": True,

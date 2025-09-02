@@ -6,8 +6,11 @@ WORKDIR /sol
 # Copy the entire monorepo
 COPY . .
 
+# Create voice_memos directory
+RUN mkdir -p voice_memos
+
 # Expose the port
 EXPOSE 8000
 
 # Run the application
-CMD ["uv", "run", "conference_signup.py"]
+CMD ["uv", "run", "uvicorn", "conference_signup:app", "--host", "0.0.0.0", "--port", "8000"]
