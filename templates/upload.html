@@ -77,6 +77,10 @@
             color: white;
         }
         
+        .step.completed::before {
+            content: '✓';
+        }
+        
         .step.active {
             background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
             color: white;
@@ -123,6 +127,20 @@
             border-color: #7C3AED;
             background: #F3E8FF;
             border-style: solid;
+        }
+        
+        .brand-header {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .brand-logo {
+            height: 20px;
+            width: auto;
         }
         
         .upload-icon {
@@ -255,26 +273,31 @@
         }
         
         .success-icon {
-            width: 80px;
-            height: 80px;
+            width: 120px;
+            height: 120px;
             margin: 0 auto 24px;
-            background: #D1FAE5;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
+            background: #F3E8FF;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
+        }
+        
+        .success-icon video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .success-title {
-            color: #065F46;
+            color: #111827;
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
         
         .success-message {
-            color: #047857;
+            color: #6B7280;
             font-size: 16px;
             margin-bottom: 32px;
         }
@@ -337,10 +360,13 @@
 </head>
 <body>
     <div class="container">
+        <div class="brand-header">
+            <img class="brand-logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor">
+        </div>
         <div class="upload-container" id="uploadContainer">
             <div class="header">
                 <div class="step-indicator">
-                    <div class="step completed">✓</div>
+                    <div class="step completed"></div>
                     <div class="step-line"></div>
                     <div class="step active">2</div>
                 </div>
@@ -381,9 +407,13 @@
         </div>
         
         <div class="success-container" id="successContainer">
-            <div class="success-icon">✓</div>
+            <div class="success-icon">
+                <video autoplay loop muted playsinline>
+                    <source src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm" type="video/webm">
+                </video>
+            </div>
             <h2 class="success-title">Upload concluído!</h2>
-            <p class="success-message">Seu arquivo foi enviado com sucesso e está seguro.</p>
+            <p class="success-message">Seu arquivo foi enviado com sucesso e está seguro com Sol.</p>
             <button class="back-btn" onclick="window.location.href='/'">← Voltar ao início</button>
         </div>
     </div>

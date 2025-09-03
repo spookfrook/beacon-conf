@@ -108,11 +108,21 @@ email_template = """
         }
         
         .logo-container {
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .emptor-logo {
+            height: 40px;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .sol-video {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            display: block;
+            opacity: 0.9;
         }
         
         .logo {
@@ -488,6 +498,7 @@ upload_template = """
             justify-content: center;
             font-size: 28px;
             box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
+            color: white;
         }
         
         .upload-text {
@@ -694,8 +705,13 @@ upload_template = """
 </head>
 <body>
     <div class="container">
-        <div class="brand-header">
-            <img class="brand-logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor">
+        <div class="header">
+            <div class="logo-container">
+                <img class="emptor-logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor Logo">
+            </div>
+            <video autoplay loop muted playsinline class="sol-video" src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm"></video>
+            <h1>SecureBox</h1>
+            <p class="subtitle">Upload seguro de planilhas</p>
         </div>
         <div class="upload-container" id="uploadContainer">
             <div class="header">
@@ -704,17 +720,17 @@ upload_template = """
                     <div class="step-line"></div>
                     <div class="step active">2</div>
                 </div>
-                <h1>Upload de Arquivo</h1>
-                <p class="subtitle">Envie seu arquivo de forma segura</p>
+                <h1>Upload de Planilha</h1>
+                <p class="subtitle">Envie sua planilha de forma segura</p>
             </div>
             
             <form id="uploadForm">
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">📁</div>
-                    <p class="upload-text">Arraste seu arquivo aqui</p>
+                    <div class="upload-icon">📊</div>
+                    <p class="upload-text">Arraste sua planilha aqui</p>
                     <p class="upload-subtext">ou clique para selecionar</p>
-                    <p class="upload-formats">Formatos aceitos: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
-                    <input type="file" id="fileInput" name="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                    <p class="upload-formats">Formatos aceitos: CSV, XLS, XLSX</p>
+                    <input type="file" id="fileInput" name="file" required accept=".csv,.xls,.xlsx">
                 </div>
                 
                 <div class="file-info" id="fileInfo">
@@ -730,13 +746,13 @@ upload_template = """
                     <div class="progress-bar-fill" id="progressBarFill"></div>
                 </div>
                 
-                <button type="submit" class="submit-btn" id="submitBtn">Enviar arquivo →</button>
+                <button type="submit" class="submit-btn" id="submitBtn">Enviar planilha →</button>
                 
                 <div class="error-message" id="errorMessage"></div>
             </form>
             
-            <div class="upload-info">
-                <strong>Segurança:</strong> Seus arquivos são criptografados e armazenados com segurança em conformidade com as normas de proteção de dados.
+                <div class="upload-info">
+                <strong>Segurança:</strong> Suas planilhas são criptografadas e armazenadas com segurança em conformidade com as normas de proteção de dados.
             </div>
         </div>
         
@@ -747,7 +763,7 @@ upload_template = """
                 </video>
             </div>
             <h2 class="success-title">Upload concluído!</h2>
-            <p class="success-message">Seu arquivo foi enviado com sucesso e está seguro com Sol.</p>
+            <p class="success-message">Sua planilha foi enviada com sucesso e está segura.</p>
             <button class="back-btn" onclick="window.location.href='/'">← Voltar ao início</button>
         </div>
     </div>
@@ -804,14 +820,9 @@ upload_template = """
             const fileIcon = document.querySelector('.file-icon');
             const extension = file.name.split('.').pop().toLowerCase();
             const iconMap = {
-                'pdf': '📄',
-                'doc': '📝',
-                'docx': '📝',
+                'csv': '📊',
                 'xls': '📊',
-                'xlsx': '📊',
-                'jpg': '🖼️',
-                'jpeg': '🖼️',
-                'png': '🖼️'
+                'xlsx': '📊'
             };
             fileIcon.textContent = iconMap[extension] || '📄';
             
@@ -915,13 +926,13 @@ templates = Jinja2Templates(directory=str(templates_dir))
 valid_tokens = {}
 
 async def send_upload_email(filename: str, file_size: int):
-    """Send email notification for file upload"""
+    """Send email notification for spreadsheet upload"""
     if not MAILGUN_API_KEY:
         print("Mailgun API key not configured")
         return False
     
     email_content = f"""
-Novo arquivo enviado ao SecureBox:
+Nova planilha enviada ao SecureBox:
 
 Arquivo: {filename}
 Tamanho: {file_size:,} bytes
@@ -938,7 +949,7 @@ Bucket S3: {S3_BUCKET_NAME}
                 data={
                     "from": f"SecureBox <noreply@{MAILGUN_DOMAIN}>",
                     "to": "gabriel@emptor.io",
-                    "subject": f"Novo arquivo: {filename}",
+                    "subject": f"Nova planilha: {filename}",
                     "text": email_content
                 }
             )
@@ -994,6 +1005,15 @@ async def upload_file(
         del valid_tokens[token]
         raise HTTPException(status_code=401, detail="Token expirado")
     
+    # Validate file type
+    allowed_extensions = {'.csv', '.xls', '.xlsx'}
+    file_extension = Path(file.filename).suffix.lower()
+    if file_extension not in allowed_extensions:
+        raise HTTPException(
+            status_code=400, 
+            detail="Tipo de arquivo não permitido. Apenas planilhas CSV, XLS e XLSX são aceitas."
+        )
+    
     try:
         # Generate unique filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -1004,7 +1024,7 @@ async def upload_file(
             file.file,
             S3_BUCKET_NAME,
             filename,
-            ExtraArgs={'ContentType': file.content_type}
+            ExtraArgs={'ContentType': file.content_type or 'application/octet-stream'}
         )
         
         # Send email notification
