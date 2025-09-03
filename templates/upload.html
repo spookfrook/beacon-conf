@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureBox - Upload Files</title>
+    <title>SecureBox by Emptor - Upload de Arquivo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,330 +14,528 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F9FAFB;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Background gradient effect */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 640px;
+            width: 100%;
+            padding: 48px;
+            position: relative;
+            z-index: 1;
         }
         
         .header {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .step-indicator {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
         }
         
-        .header h1 {
-            font-size: 24px;
-            color: #333;
-        }
-        
-        .user-info {
-            color: #666;
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 14px;
+            font-weight: 600;
         }
         
-        .upload-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            padding: 30px;
-            max-width: 800px;
-            margin: 0 auto;
+        .step.completed {
+            background: #10B981;
+            color: white;
+        }
+        
+        .step.active {
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            color: white;
+            box-shadow: 0 4px 8px -2px rgba(124, 58, 237, 0.3);
+        }
+        
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: #E5E7EB;
+        }
+        
+        h1 {
+            color: #111827;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: #6B7280;
+            font-size: 16px;
+            font-weight: 400;
         }
         
         .upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 40px;
+            border: 2px dashed #E5E7EB;
+            border-radius: 12px;
+            padding: 48px 24px;
             text-align: center;
-            transition: all 0.3s;
+            transition: all 0.2s;
             cursor: pointer;
-            background: #fafafa;
+            margin-bottom: 24px;
+            background: #FAFAFA;
         }
         
-        .upload-area.dragover {
-            border-color: #667eea;
-            background: #f0f4ff;
+        .upload-area:hover {
+            border-color: #A855F7;
+            background: #FAF5FF;
+        }
+        
+        .upload-area.drag-over {
+            border-color: #7C3AED;
+            background: #F3E8FF;
+            border-style: solid;
         }
         
         .upload-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
         }
         
         .upload-text {
-            color: #333;
-            font-size: 18px;
-            margin-bottom: 10px;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 600;
         }
         
         .upload-subtext {
-            color: #666;
+            color: #9CA3AF;
             font-size: 14px;
         }
         
-        .file-input {
+        .upload-formats {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+        
+        input[type="file"] {
             display: none;
         }
         
-        .upload-btn {
+        .file-info {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: #F3E8FF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .file-details {
+            flex: 1;
+        }
+        
+        .file-info .filename {
+            color: #111827;
+            font-weight: 600;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+        
+        .file-info .filesize {
+            color: #6B7280;
+            font-size: 14px;
+        }
+        
+        .file-remove {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            color: #EF4444;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-remove:hover {
+            background: #FEE2E2;
+            border-color: #FECACA;
+        }
+        
+        .submit-btn {
+            width: 100%;
             padding: 12px 24px;
-            background: #667eea;
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .submit-btn:disabled {
+            background: #E5E7EB;
+            color: #9CA3AF;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .success-container {
+            display: none;
+            text-align: center;
+            padding: 48px;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: #D1FAE5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .success-title {
+            color: #065F46;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .success-message {
+            color: #047857;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .back-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            color: #374151;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 20px;
+            transition: all 0.2s;
         }
         
-        .upload-btn:hover {
-            background: #5a67d8;
+        .back-btn:hover {
+            background: #F9FAFB;
+            border-color: #D1D5DB;
         }
         
-        .upload-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .error-message {
+            display: none;
+            padding: 16px;
+            background: #FEE2E2;
+            color: #DC2626;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .progress-bar {
             display: none;
-            margin-top: 20px;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            margin-bottom: 24px;
             overflow: hidden;
         }
         
         .progress-bar-fill {
             height: 100%;
-            background: #667eea;
-            transition: width 0.3s;
+            background: linear-gradient(90deg, #7C3AED 0%, #A855F7 100%);
             width: 0%;
+            transition: width 0.3s;
+            border-radius: 4px;
         }
         
-        .file-list {
-            margin-top: 40px;
-        }
-        
-        .file-list h2 {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        
-        .file-item {
-            background: #fafafa;
+        .upload-info {
+            margin-top: 32px;
             padding: 16px;
+            background: #F3F4F6;
             border-radius: 8px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .file-info {
-            flex: 1;
-        }
-        
-        .file-name {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 4px;
-        }
-        
-        .file-meta {
-            font-size: 13px;
-            color: #666;
-        }
-        
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .logout-btn {
-            color: #666;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        
-        .logout-btn:hover {
-            color: #333;
+            font-size: 12px;
+            color: #6B7280;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🔒 SecureBox</h1>
-        <div class="user-info">
-            Logged in as: {{ email }}
-            <a href="/" class="logout-btn">(Logout)</a>
-        </div>
-    </div>
-    
-    <div class="upload-container">
-        <form id="uploadForm">
-            <input type="hidden" name="token" value="{{ token }}">
-            
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">📁</div>
-                <div class="upload-text">Drop files here or click to upload</div>
-                <div class="upload-subtext">Maximum file size: 100MB</div>
-                <input type="file" id="fileInput" class="file-input" multiple>
-                <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                    Choose Files
-                </button>
-            </div>
-            
-            <div class="progress-bar" id="progressBar">
-                <div class="progress-bar-fill" id="progressBarFill"></div>
-            </div>
-            
-            <div class="success-message" id="successMessage"></div>
-            <div class="error-message" id="errorMessage"></div>
-        </form>
-        
-        {% if recent_uploads %}
-        <div class="file-list">
-            <h2>Recent Uploads</h2>
-            {% for file in recent_uploads %}
-            <div class="file-item">
-                <div class="file-info">
-                    <div class="file-name">{{ file.filename }}</div>
-                    <div class="file-meta">
-                        {{ file.file_size|filesizeformat if file.file_size else 'Unknown size' }} • 
-                        {{ file.uploaded_at.strftime('%Y-%m-%d %H:%M') }}
-                    </div>
+    <div class="container">
+        <div class="upload-container" id="uploadContainer">
+            <div class="header">
+                <div class="step-indicator">
+                    <div class="step completed">✓</div>
+                    <div class="step-line"></div>
+                    <div class="step active">2</div>
                 </div>
+                <h1>Upload de Arquivo</h1>
+                <p class="subtitle">Envie seu arquivo de forma segura</p>
             </div>
-            {% endfor %}
+            
+            <form id="uploadForm">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">Arraste seu arquivo aqui</p>
+                    <p class="upload-subtext">ou clique para selecionar</p>
+                    <p class="upload-formats">Formatos aceitos: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
+                    <input type="file" id="fileInput" name="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <div class="file-icon">📄</div>
+                    <div class="file-details">
+                        <div class="filename" id="fileName"></div>
+                        <div class="filesize" id="fileSize"></div>
+                    </div>
+                    <button type="button" class="file-remove" id="removeFile">Remover</button>
+                </div>
+                
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">Enviar arquivo →</button>
+                
+                <div class="error-message" id="errorMessage"></div>
+            </form>
+            
+            <div class="upload-info">
+                <strong>Segurança:</strong> Seus arquivos são criptografados e armazenados com segurança em conformidade com as normas de proteção de dados.
+            </div>
         </div>
-        {% endif %}
+        
+        <div class="success-container" id="successContainer">
+            <div class="success-icon">✓</div>
+            <h2 class="success-title">Upload concluído!</h2>
+            <p class="success-message">Seu arquivo foi enviado com sucesso e está seguro.</p>
+            <button class="back-btn" onclick="window.location.href='/'">← Voltar ao início</button>
+        </div>
     </div>
     
     <script>
+        // Check if user has valid token
+        const token = sessionStorage.getItem('upload_token');
+        if (!token) {
+            window.location.href = '/';
+        }
+        
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
-        const uploadForm = document.getElementById('uploadForm');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const submitBtn = document.getElementById('submitBtn');
         const progressBar = document.getElementById('progressBar');
         const progressBarFill = document.getElementById('progressBarFill');
-        const successMessage = document.getElementById('successMessage');
-        const errorMessage = document.getElementById('errorMessage');
         
-        // Drag and drop handlers
+        // Click to select file
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        // Drag and drop
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadArea.classList.add('dragover');
+            uploadArea.classList.add('drag-over');
         });
         
         uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
+            uploadArea.classList.remove('drag-over');
         });
         
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-        
-        async function handleFiles(files) {
-            for (let file of files) {
-                await uploadFile(file);
+            uploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect(files[0]);
             }
+        });
+        
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+        
+        function handleFileSelect(file) {
+            // Update file icon based on type
+            const fileIcon = document.querySelector('.file-icon');
+            const extension = file.name.split('.').pop().toLowerCase();
+            const iconMap = {
+                'pdf': '📄',
+                'doc': '📝',
+                'docx': '📝',
+                'xls': '📊',
+                'xlsx': '📊',
+                'jpg': '🖼️',
+                'jpeg': '🖼️',
+                'png': '🖼️'
+            };
+            fileIcon.textContent = iconMap[extension] || '📄';
+            
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'flex';
+            submitBtn.style.display = 'block';
+            uploadArea.style.display = 'none';
         }
         
-        async function uploadFile(file) {
-            // Check file size (100MB limit)
-            if (file.size > 100 * 1024 * 1024) {
-                showError(`File ${file.name} is too large. Maximum size is 100MB.`);
-                return;
-            }
+        // Remove file
+        document.getElementById('removeFile').addEventListener('click', () => {
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            submitBtn.style.display = 'none';
+            uploadArea.style.display = 'block';
+        });
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
             const formData = new FormData();
-            formData.append('file', file);
-            formData.append('token', document.querySelector('[name="token"]').value);
+            formData.append('file', fileInput.files[0]);
             
-            // Show progress bar
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
             progressBar.style.display = 'block';
-            progressBarFill.style.width = '0%';
-            hideMessages();
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 90) progress = 90;
+                progressBarFill.style.width = progress + '%';
+            }, 200);
             
             try {
-                const xhr = new XMLHttpRequest();
-                
-                xhr.upload.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                        const percentComplete = (e.loaded / e.total) * 100;
-                        progressBarFill.style.width = percentComplete + '%';
-                    }
+                const response = await fetch('/upload-file', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
                 });
                 
-                xhr.addEventListener('load', () => {
-                    if (xhr.status === 200) {
-                        const response = JSON.parse(xhr.responseText);
-                        showSuccess(`File "${file.name}" uploaded successfully!`);
-                        setTimeout(() => location.reload(), 2000);
-                    } else {
-                        showError('Upload failed. Please try again.');
-                    }
-                    progressBar.style.display = 'none';
-                });
-                
-                xhr.addEventListener('error', () => {
-                    showError('Upload failed. Please try again.');
-                    progressBar.style.display = 'none';
-                });
-                
-                xhr.open('POST', '/upload-file');
-                xhr.send(formData);
-                
+                if (response.ok) {
+                    clearInterval(progressInterval);
+                    progressBarFill.style.width = '100%';
+                    
+                    // Short delay for visual feedback
+                    setTimeout(() => {
+                        // Show success screen
+                        document.getElementById('uploadContainer').style.display = 'none';
+                        document.getElementById('successContainer').style.display = 'block';
+                    }, 500);
+                    
+                    // Clear token after successful upload
+                    sessionStorage.removeItem('upload_token');
+                } else {
+                    clearInterval(progressInterval);
+                    const error = await response.json();
+                    document.getElementById('errorMessage').textContent = error.detail || 'Erro ao enviar arquivo.';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    progressBarFill.style.width = '0%';
+                }
             } catch (error) {
-                showError('Upload failed: ' + error.message);
-                progressBar.style.display = 'none';
+                clearInterval(progressInterval);
+                document.getElementById('errorMessage').textContent = 'Erro ao enviar arquivo. Verifique sua conexão.';
+                document.getElementById('errorMessage').style.display = 'block';
+                progressBarFill.style.width = '0%';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar arquivo →';
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                }, 1000);
             }
-        }
-        
-        function showSuccess(message) {
-            successMessage.textContent = message;
-            successMessage.style.display = 'block';
-            errorMessage.style.display = 'none';
-        }
-        
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            successMessage.style.display = 'none';
-        }
-        
-        function hideMessages() {
-            successMessage.style.display = 'none';
-            errorMessage.style.display = 'none';
-        }
+        });
     </script>
 </body>
 </html>

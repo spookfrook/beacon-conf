@@ -58,7 +58,8 @@ email_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureBox - Upload Seguro</title>
+    <title>SecureBox by Emptor - Upload Seguro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -67,117 +68,223 @@ email_template = """
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F9FAFB;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Background gradient effect */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 450px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 480px;
             width: 100%;
-            padding: 40px;
+            padding: 48px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
             text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .logo-container {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
         }
         
         .logo {
-            font-size: 48px;
-            margin-bottom: 10px;
+            height: 32px;
+            width: auto;
+        }
+        
+        .sol-detective {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #F3E8FF;
+        }
+        
+        .sol-detective video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+            color: #111827;
+            margin-bottom: 8px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
         
         .subtitle {
-            color: #666;
-            margin-bottom: 40px;
+            color: #6B7280;
             font-size: 16px;
+            font-weight: 400;
+        }
+        
+        .emptor-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+            padding: 6px 12px;
+            background: #F3F4F6;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #6B7280;
         }
         
         .form-group {
-            margin-bottom: 20px;
-            text-align: left;
+            margin-bottom: 24px;
         }
         
         label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
+            color: #374151;
             font-weight: 500;
+            font-size: 14px;
         }
         
         input[type="email"] {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid #E5E7EB;
             border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        input[type="email"]:hover {
+            border-color: #D1D5DB;
         }
         
         input[type="email"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #7C3AED;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
         }
         
         .submit-btn {
             width: 100%;
-            padding: 14px;
-            background: #667eea;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
+            margin-top: 32px;
         }
         
         .submit-btn:hover {
-            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
         }
         
         .submit-btn:disabled {
-            background: #ccc;
+            background: #E5E7EB;
+            color: #9CA3AF;
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
         }
         
         .error-message {
             display: none;
-            padding: 12px;
-            background: #fee;
-            color: #c33;
+            padding: 12px 16px;
+            background: #FEE2E2;
+            color: #DC2626;
             border-radius: 8px;
-            margin-top: 20px;
+            margin-top: 16px;
             font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .security-note {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #E5E7EB;
+            text-align: center;
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+        
+        .security-note svg {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">🔐</div>
-        <h1>SecureBox</h1>
-        <p class="subtitle">Upload seguro de arquivos</p>
+        <div class="header">
+            <div class="logo-container">
+                <img class="logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor Logo">
+                <div class="sol-detective">
+                    <video autoplay loop muted playsinline>
+                        <source src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm" type="video/webm">
+                    </video>
+                </div>
+            </div>
+            <h1>SecureBox</h1>
+            <p class="subtitle">Upload seguro de arquivos</p>
+        </div>
         
         <form id="emailForm">
             <div class="form-group">
-                <label for="email">Digite seu email para continuar</label>
-                <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                <label for="email">Email autorizado</label>
+                <input type="email" id="email" name="email" required placeholder="seu@email.com" autocomplete="email">
             </div>
             
-            <button type="submit" class="submit-btn">Continuar</button>
+            <button type="submit" class="submit-btn">Acessar sistema →</button>
         </form>
         
         <div class="error-message" id="errorMessage"></div>
+        
+        <div class="security-note">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            Conexão segura e criptografada
+        </div>
     </div>
     
     <script>
@@ -231,7 +338,8 @@ upload_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureBox - Upload de Arquivo</title>
+    <title>SecureBox by Emptor - Upload de Arquivo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -240,22 +348,38 @@ upload_template = """
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F9FAFB;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Background gradient effect */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 640px;
             width: 100%;
-            padding: 40px;
+            padding: 48px;
+            position: relative;
+            z-index: 1;
         }
         
         .header {
@@ -263,57 +387,125 @@ upload_template = """
             margin-bottom: 40px;
         }
         
-        .logo {
-            font-size: 48px;
-            margin-bottom: 10px;
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+        
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .step.completed {
+            background: #10B981;
+            color: white;
+        }
+        
+        .step.completed::before {
+            content: '✓';
+        }
+        
+        .step.active {
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            color: white;
+            box-shadow: 0 4px 8px -2px rgba(124, 58, 237, 0.3);
+        }
+        
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: #E5E7EB;
         }
         
         h1 {
-            color: #333;
-            margin-bottom: 10px;
+            color: #111827;
+            margin-bottom: 8px;
             font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
         
         .subtitle {
-            color: #666;
+            color: #6B7280;
             font-size: 16px;
+            font-weight: 400;
         }
         
         .upload-area {
-            border: 2px dashed #ddd;
+            border: 2px dashed #E5E7EB;
             border-radius: 12px;
-            padding: 40px;
+            padding: 48px 24px;
             text-align: center;
-            transition: all 0.3s;
+            transition: all 0.2s;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            background: #FAFAFA;
         }
         
         .upload-area:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
+            border-color: #A855F7;
+            background: #FAF5FF;
         }
         
         .upload-area.drag-over {
-            border-color: #667eea;
-            background: #f8f9ff;
-            transform: scale(1.02);
+            border-color: #7C3AED;
+            background: #F3E8FF;
+            border-style: solid;
+        }
+        
+        .brand-header {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .brand-logo {
+            height: 20px;
+            width: auto;
         }
         
         .upload-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            color: #667eea;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
         }
         
         .upload-text {
-            color: #666;
-            margin-bottom: 10px;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 600;
         }
         
         .upload-subtext {
-            color: #999;
+            color: #9CA3AF;
             font-size: 14px;
+        }
+        
+        .upload-formats {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #9CA3AF;
         }
         
         input[type="file"] {
@@ -321,115 +513,243 @@ upload_template = """
         }
         
         .file-info {
-            background: #f8f9ff;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
             display: none;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: #F3E8FF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .file-details {
+            flex: 1;
         }
         
         .file-info .filename {
-            color: #333;
-            font-weight: 500;
-            margin-bottom: 5px;
+            color: #111827;
+            font-weight: 600;
+            margin-bottom: 4px;
+            word-break: break-all;
         }
         
         .file-info .filesize {
-            color: #666;
+            color: #6B7280;
             font-size: 14px;
+        }
+        
+        .file-remove {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            color: #EF4444;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-remove:hover {
+            background: #FEE2E2;
+            border-color: #FECACA;
         }
         
         .submit-btn {
             width: 100%;
-            padding: 14px;
-            background: #667eea;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.2s;
             display: none;
+            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
         }
         
         .submit-btn:hover {
-            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
         }
         
         .submit-btn:disabled {
-            background: #ccc;
+            background: #E5E7EB;
+            color: #9CA3AF;
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .success-container {
+            display: none;
+            text-align: center;
+            padding: 48px;
+        }
+        
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            background: #F3E8FF;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
+        }
+        
+        .success-icon video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .success-title {
+            color: #111827;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
         
         .success-message {
-            display: none;
-            padding: 20px;
-            background: #d4edda;
-            color: #155724;
+            color: #6B7280;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .back-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 1px solid #E5E7EB;
             border-radius: 8px;
-            text-align: center;
+            color: #374151;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: #F9FAFB;
+            border-color: #D1D5DB;
         }
         
         .error-message {
             display: none;
-            padding: 20px;
-            background: #fee;
-            color: #c33;
+            padding: 16px;
+            background: #FEE2E2;
+            color: #DC2626;
             border-radius: 8px;
-            text-align: center;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .progress-bar {
             display: none;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
-            margin-bottom: 20px;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            margin-bottom: 24px;
             overflow: hidden;
         }
         
         .progress-bar-fill {
             height: 100%;
-            background: #667eea;
+            background: linear-gradient(90deg, #7C3AED 0%, #A855F7 100%);
             width: 0%;
             transition: width 0.3s;
+            border-radius: 4px;
+        }
+        
+        .upload-info {
+            margin-top: 32px;
+            padding: 16px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6B7280;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="logo">📤</div>
-            <h1>Upload de Arquivo</h1>
-            <p class="subtitle">Arraste ou selecione seu arquivo</p>
+        <div class="brand-header">
+            <img class="brand-logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor">
+        </div>
+        <div class="upload-container" id="uploadContainer">
+            <div class="header">
+                <div class="step-indicator">
+                    <div class="step completed"></div>
+                    <div class="step-line"></div>
+                    <div class="step active">2</div>
+                </div>
+                <h1>Upload de Arquivo</h1>
+                <p class="subtitle">Envie seu arquivo de forma segura</p>
+            </div>
+            
+            <form id="uploadForm">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">Arraste seu arquivo aqui</p>
+                    <p class="upload-subtext">ou clique para selecionar</p>
+                    <p class="upload-formats">Formatos aceitos: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
+                    <input type="file" id="fileInput" name="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <div class="file-icon">📄</div>
+                    <div class="file-details">
+                        <div class="filename" id="fileName"></div>
+                        <div class="filesize" id="fileSize"></div>
+                    </div>
+                    <button type="button" class="file-remove" id="removeFile">Remover</button>
+                </div>
+                
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">Enviar arquivo →</button>
+                
+                <div class="error-message" id="errorMessage"></div>
+            </form>
+            
+            <div class="upload-info">
+                <strong>Segurança:</strong> Seus arquivos são criptografados e armazenados com segurança em conformidade com as normas de proteção de dados.
+            </div>
         </div>
         
-        <form id="uploadForm">
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">📁</div>
-                <p class="upload-text">Arraste seu arquivo aqui</p>
-                <p class="upload-subtext">ou clique para selecionar</p>
-                <input type="file" id="fileInput" name="file" required>
+        <div class="success-container" id="successContainer">
+            <div class="success-icon">
+                <video autoplay loop muted playsinline>
+                    <source src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm" type="video/webm">
+                </video>
             </div>
-            
-            <div class="file-info" id="fileInfo">
-                <div class="filename" id="fileName"></div>
-                <div class="filesize" id="fileSize"></div>
-            </div>
-            
-            <div class="progress-bar" id="progressBar">
-                <div class="progress-bar-fill" id="progressBarFill"></div>
-            </div>
-            
-            <button type="submit" class="submit-btn" id="submitBtn">Enviar Arquivo</button>
-        </form>
-        
-        <div class="success-message" id="successMessage">
-            ✅ Arquivo enviado com sucesso!
+            <h2 class="success-title">Upload concluído!</h2>
+            <p class="success-message">Seu arquivo foi enviado com sucesso e está seguro com Sol.</p>
+            <button class="back-btn" onclick="window.location.href='/'">← Voltar ao início</button>
         </div>
-        
-        <div class="error-message" id="errorMessage"></div>
     </div>
     
     <script>
@@ -480,11 +800,35 @@ upload_template = """
         });
         
         function handleFileSelect(file) {
+            // Update file icon based on type
+            const fileIcon = document.querySelector('.file-icon');
+            const extension = file.name.split('.').pop().toLowerCase();
+            const iconMap = {
+                'pdf': '📄',
+                'doc': '📝',
+                'docx': '📝',
+                'xls': '📊',
+                'xlsx': '📊',
+                'jpg': '🖼️',
+                'jpeg': '🖼️',
+                'png': '🖼️'
+            };
+            fileIcon.textContent = iconMap[extension] || '📄';
+            
             fileName.textContent = file.name;
             fileSize.textContent = formatFileSize(file.size);
-            fileInfo.style.display = 'block';
+            fileInfo.style.display = 'flex';
             submitBtn.style.display = 'block';
+            uploadArea.style.display = 'none';
         }
+        
+        // Remove file
+        document.getElementById('removeFile').addEventListener('click', () => {
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            submitBtn.style.display = 'none';
+            uploadArea.style.display = 'block';
+        });
         
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
@@ -504,6 +848,15 @@ upload_template = """
             submitBtn.disabled = true;
             submitBtn.textContent = 'Enviando...';
             progressBar.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 90) progress = 90;
+                progressBarFill.style.width = progress + '%';
+            }, 200);
             
             try {
                 const response = await fetch('/upload-file', {
@@ -515,29 +868,36 @@ upload_template = """
                 });
                 
                 if (response.ok) {
+                    clearInterval(progressInterval);
                     progressBarFill.style.width = '100%';
-                    document.getElementById('successMessage').style.display = 'block';
-                    document.getElementById('uploadForm').style.display = 'none';
+                    
+                    // Short delay for visual feedback
+                    setTimeout(() => {
+                        // Show success screen
+                        document.getElementById('uploadContainer').style.display = 'none';
+                        document.getElementById('successContainer').style.display = 'block';
+                    }, 500);
                     
                     // Clear token after successful upload
                     sessionStorage.removeItem('upload_token');
-                    
-                    // Redirect after 3 seconds
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 3000);
                 } else {
+                    clearInterval(progressInterval);
                     const error = await response.json();
-                    document.getElementById('errorMessage').textContent = error.detail;
+                    document.getElementById('errorMessage').textContent = error.detail || 'Erro ao enviar arquivo.';
                     document.getElementById('errorMessage').style.display = 'block';
+                    progressBarFill.style.width = '0%';
                 }
             } catch (error) {
-                document.getElementById('errorMessage').textContent = 'Erro ao enviar arquivo.';
+                clearInterval(progressInterval);
+                document.getElementById('errorMessage').textContent = 'Erro ao enviar arquivo. Verifique sua conexão.';
                 document.getElementById('errorMessage').style.display = 'block';
+                progressBarFill.style.width = '0%';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar Arquivo';
-                progressBar.style.display = 'none';
+                submitBtn.textContent = 'Enviar arquivo →';
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                }, 1000);
             }
         });
     </script>
