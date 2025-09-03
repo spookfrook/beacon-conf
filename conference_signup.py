@@ -985,6 +985,10 @@ async def upload_file(
         del valid_tokens[token]
         raise HTTPException(status_code=401, detail="Token expirado")
     
+    # Validate file
+    if not file or not file.filename:
+        raise HTTPException(status_code=400, detail="Nenhum arquivo foi enviado")
+    
     # Validate file type
     allowed_extensions = {'.csv', '.xls', '.xlsx'}
     file_extension = Path(file.filename).suffix.lower()
@@ -994,10 +998,17 @@ async def upload_file(
             detail="Tipo de arquivo não permitido. Apenas planilhas CSV, XLS e XLSX são aceitas."
         )
     
+    # Check S3 configuration
+    if not S3_BUCKET_NAME:
+        raise HTTPException(status_code=500, detail="S3 bucket não configurado")
+    
     try:
         # Generate unique filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{timestamp}_{file.filename}"
+        
+        # Reset file position to beginning
+        await file.seek(0)
         
         # Upload to S3
         s3_client.upload_fileobj(
