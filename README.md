@@ -1,45 +1,46 @@
 # SecureBox - Secure File Upload System
 
-A secure file upload system with email-based access control and S3 storage.
+A secure file upload system with email validation and S3 storage.
 
 ## Features
 
-- Email-based authentication (restricted access)
+- Email-based access control (restricted to specific email)
 - Secure file upload to AWS S3
-- Session-based access with time-limited tokens
-- Email notifications for file uploads
+- Session-based authentication with temporary tokens
+- Email notifications for uploaded files
 - Drag-and-drop file upload interface
-- Recent uploads history
+- Mobile-friendly responsive design
 
 ## Local Development
 
 ```bash
 # Run with uv
 uv run conference_signup.py
-
-# Or run with HTTPS for testing
-uv run uvicorn conference_signup:app --host 0.0.0.0 --port 8000 --ssl-keyfile key.pem --ssl-certfile cert.pem
 ```
 
 ## Environment Variables
 
+Create a `.env` file with the following variables:
+
 ```bash
 # AWS S3 Configuration
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
 AWS_REGION=us-east-1
-S3_BUCKET_NAME=your_s3_bucket_name
+S3_BUCKET_NAME=your_bucket_name
 
 # Email Notifications
 MAILGUN_API_KEY=your_mailgun_api_key
-APP_BASE_URL=https://your-app-url.railway.app
 ```
 
-## Access Control
+## Usage
 
-Currently configured to only allow access to: `viviansantanna@99app.com`
-
-To change the allowed email, modify the `ALLOWED_EMAIL` constant in `conference_signup.py`.
+1. User enters their email address
+2. System validates the email (only `viviansantanna@99app.com` is allowed)
+3. If valid, user receives a temporary token and is redirected to upload page
+4. User can drag-and-drop or select a file to upload
+5. File is uploaded to S3 bucket
+6. Email notification is sent to admin
 
 ## Deployment
 
@@ -54,12 +55,4 @@ This app is configured for deployment on Railway using the included Dockerfile.
 
 The app will automatically:
 - Install dependencies using uv
-- Create the SQLite database for tracking uploads
 - Start the server on port 8000
-
-## File Storage
-
-Files are stored in AWS S3 with the following structure:
-- Path: `uploads/YYYYMMDD_HHMMSS_filename`
-- Metadata tracked in local SQLite database
-- Email notifications sent for each upload
