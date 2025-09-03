@@ -154,6 +154,7 @@
             justify-content: center;
             font-size: 28px;
             box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
+            color: white;
         }
         
         .upload-text {
@@ -360,8 +361,13 @@
 </head>
 <body>
     <div class="container">
-        <div class="brand-header">
-            <img class="brand-logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor">
+        <div class="header">
+            <div class="logo-container">
+                <img class="emptor-logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor Logo">
+            </div>
+            <video autoplay loop muted playsinline class="sol-video" src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm"></video>
+            <h1>SecureBox</h1>
+            <p class="subtitle">Upload seguro de planilhas</p>
         </div>
         <div class="upload-container" id="uploadContainer">
             <div class="header">
@@ -370,17 +376,17 @@
                     <div class="step-line"></div>
                     <div class="step active">2</div>
                 </div>
-                <h1>Upload de Arquivo</h1>
-                <p class="subtitle">Envie seu arquivo de forma segura</p>
+                <h1>Upload de Planilha</h1>
+                <p class="subtitle">Envie sua planilha de forma segura</p>
             </div>
             
             <form id="uploadForm">
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">📁</div>
-                    <p class="upload-text">Arraste seu arquivo aqui</p>
+                    <div class="upload-icon">📊</div>
+                    <p class="upload-text">Arraste sua planilha aqui</p>
                     <p class="upload-subtext">ou clique para selecionar</p>
-                    <p class="upload-formats">Formatos aceitos: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG</p>
-                    <input type="file" id="fileInput" name="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                    <p class="upload-formats">Formatos aceitos: CSV, XLS, XLSX</p>
+                    <input type="file" id="fileInput" name="file" required accept=".csv,.xls,.xlsx">
                 </div>
                 
                 <div class="file-info" id="fileInfo">
@@ -396,13 +402,13 @@
                     <div class="progress-bar-fill" id="progressBarFill"></div>
                 </div>
                 
-                <button type="submit" class="submit-btn" id="submitBtn">Enviar arquivo →</button>
+                <button type="submit" class="submit-btn" id="submitBtn">Enviar planilha →</button>
                 
                 <div class="error-message" id="errorMessage"></div>
             </form>
             
-            <div class="upload-info">
-                <strong>Segurança:</strong> Seus arquivos são criptografados e armazenados com segurança em conformidade com as normas de proteção de dados.
+                <div class="upload-info">
+                <strong>Segurança:</strong> Suas planilhas são criptografadas e armazenadas com segurança em conformidade com as normas de proteção de dados.
             </div>
         </div>
         
@@ -413,7 +419,7 @@
                 </video>
             </div>
             <h2 class="success-title">Upload concluído!</h2>
-            <p class="success-message">Seu arquivo foi enviado com sucesso e está seguro com Sol.</p>
+            <p class="success-message">Sua planilha foi enviada com sucesso e está segura.</p>
             <button class="back-btn" onclick="window.location.href='/'">← Voltar ao início</button>
         </div>
     </div>
@@ -470,14 +476,9 @@
             const fileIcon = document.querySelector('.file-icon');
             const extension = file.name.split('.').pop().toLowerCase();
             const iconMap = {
-                'pdf': '📄',
-                'doc': '📝',
-                'docx': '📝',
+                'csv': '📊',
                 'xls': '📊',
-                'xlsx': '📊',
-                'jpg': '🖼️',
-                'jpeg': '🖼️',
-                'png': '🖼️'
+                'xlsx': '📊'
             };
             fileIcon.textContent = iconMap[extension] || '📄';
             

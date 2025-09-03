@@ -112,17 +112,29 @@ email_template = """
         }
         
         .emptor-logo {
-            height: 40px;
+            height: 32px;
+            width: auto;
             margin: 0 auto;
             display: block;
+            object-fit: contain;
+        }
+        
+        .sol-video-container {
+            width: 100px;
+            height: 100px;
+            margin: 24px auto;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #F3E8FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .sol-video {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 24px;
-            display: block;
-            opacity: 0.9;
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
         }
         
         .logo {
@@ -707,9 +719,13 @@ upload_template = """
     <div class="container">
         <div class="header">
             <div class="logo-container">
-                <img class="emptor-logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor Logo">
+                <svg class="emptor-logo" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+                    <text x="0" y="30" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#7C3AED">emptor</text>
+                </svg>
             </div>
-            <video autoplay loop muted playsinline class="sol-video" src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm"></video>
+            <div class="sol-video-container">
+                <video autoplay loop muted playsinline class="sol-video" src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm"></video>
+            </div>
             <h1>SecureBox</h1>
             <p class="subtitle">Upload seguro de planilhas</p>
         </div>
