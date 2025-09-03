@@ -108,21 +108,20 @@ email_template = """
         }
         
         .logo-container {
-            margin-bottom: 32px;
+            margin-bottom: 16px;
         }
         
         .emptor-logo {
-            height: 32px;
-            width: auto;
+            width: 100px;
+            height: 24px;
             margin: 0 auto;
             display: block;
-            object-fit: contain;
         }
         
         .sol-video-container {
-            width: 100px;
-            height: 100px;
-            margin: 24px auto;
+            width: 80px;
+            height: 80px;
+            margin: 20px auto;
             border-radius: 50%;
             overflow: hidden;
             background: #F3E8FF;
@@ -132,8 +131,8 @@ email_template = """
         }
         
         .sol-video {
-            width: 80%;
-            height: 80%;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
         }
         
@@ -287,7 +286,7 @@ email_template = """
                 </div>
             </div>
             <h1>SecureBox</h1>
-            <p class="subtitle">Upload seguro de arquivos</p>
+            <p class="subtitle">Upload seguro de planilhas</p>
         </div>
         
         <form id="emailForm">
@@ -719,8 +718,8 @@ upload_template = """
     <div class="container">
         <div class="header">
             <div class="logo-container">
-                <svg class="emptor-logo" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
-                    <text x="0" y="30" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#7C3AED">emptor</text>
+                <svg class="emptor-logo" viewBox="0 0 100 24" xmlns="http://www.w3.org/2000/svg">
+                    <text x="50" y="18" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#7C3AED" text-anchor="middle">emptor</text>
                 </svg>
             </div>
             <div class="sol-video-container">
