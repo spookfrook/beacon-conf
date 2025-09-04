@@ -281,7 +281,7 @@ email_template = """
                 <input type="email" id="email" name="email" required placeholder="seu@email.com" autocomplete="email">
             </div>
             
-            <button type="submit" class="submit-btn">Enviar código de verificação →</button>
+            <button type="submit" class="submit-btn">Acessar sistema →</button>
         </form>
         
         <div class="error-message" id="errorMessage"></div>
@@ -317,10 +317,9 @@ email_template = """
                 
                 if (response.ok) {
                     const data = await response.json();
-                    // Store verification ID and email, then redirect to PIN page
-                    sessionStorage.setItem('verification_id', data.verification_id);
-                    sessionStorage.setItem('user_email', email);
-                    window.location.href = '/verify-pin';
+                    // Store session token and redirect to upload page
+                    sessionStorage.setItem('upload_token', data.token);
+                    window.location.href = '/upload';
                 } else {
                     const error = await response.json();
                     errorMsg.textContent = error.detail;
@@ -331,7 +330,7 @@ email_template = """
                 errorMsg.style.display = 'block';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar código de verificação →';
+                submitBtn.textContent = 'Acessar sistema →';
             }
         });
     </script>
@@ -911,20 +910,6 @@ templates = Jinja2Templates(directory=str(templates_dir))
 # Simple in-memory token storage (in production, use Redis or similar)
 valid_tokens = {}
 
-# PIN verification storage
-pending_verifications = {}
-
-def generate_pin(length=6):
-    """Generate a random PIN code"""
-    return ''.join(random.choices(string.digits, k=length))
-
-def generate_verification_link(email: str, pin: str) -> str:
-    """Generate a verification link with email and PIN"""
-    import urllib.parse
-    base_url = os.getenv("BASE_URL", "https://securebox.emptor.io")
-    params = urllib.parse.urlencode({"email": email, "pin": pin})
-    return f"{base_url}/verify?{params}"
-
 def sanitize_filename(filename: str) -> str:
     """Sanitize filename to prevent directory traversal and other issues"""
     # Remove any path components
@@ -965,94 +950,6 @@ def validate_file_content(file_content: bytes, extension: str) -> bool:
     
     return False
 
-async def send_verification_email(email: str, pin: str, link: str) -> bool:
-    """Send PIN verification email"""
-    if not MAILGUN_API_KEY:
-        print("Mailgun API key not configured")
-        return False
-    
-    email_content = f"""
-SecureBox - Código de verificação
-
-Seu código PIN: {pin}
-
-Ou acesse: {link}
-
-Válido por 10 minutos.
-
-Se você não solicitou este código, ignore este email.
-"""
-    
-    html_content = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.5; color: #333; margin: 0; padding: 0; }}
-        .container {{ max-width: 500px; margin: 20px auto; }}
-        .header {{ background: #f8f9fa; border-bottom: 2px solid #e9ecef; padding: 20px; text-align: center; }}
-        .content {{ background: white; padding: 20px; border: 1px solid #e9ecef; }}
-        .pin-code {{ background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; text-align: center; margin: 15px 0; font-size: 28px; font-weight: bold; color: #212529; letter-spacing: 6px; font-family: monospace; }}
-        .button {{ display: inline-block; background: #692494; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 10px 0; font-size: 14px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-weight: 500; }}
-        .button:hover {{ background: #5a1f7a; }}
-        .footer {{ margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 13px; }}
-        h2 {{ margin: 0; font-size: 24px; font-weight: 600; color: #212529; }}
-        p {{ margin: 10px 0; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h2>SecureBox - Verificação</h2>
-        </div>
-        <div class="content">
-            <p>Seu código de verificação:</p>
-            
-            <div class="pin-code">{pin}</div>
-            
-            <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                    <td align="center" style="padding: 20px 0;">
-                        <table border="0" cellspacing="0" cellpadding="0">
-                            <tr>
-                                <td align="center" bgcolor="#692494" style="border-radius: 8px;">
-                                    <a href="{link}" target="_blank" style="display: inline-block; padding: 12px 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 500; color: #ffffff; text-decoration: none; border-radius: 8px;">Verificar Automaticamente</a>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-            
-            <p style="color: #6c757d; font-size: 13px; text-align: center;">Código válido por 10 minutos</p>
-            
-            <div class="footer">
-                <p>Se você não solicitou este código, ignore este email.</p>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
-"""
-    
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(
-                f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
-                auth=("api", MAILGUN_API_KEY),
-                data={
-                    "from": f"SecureBox <noreply@{MAILGUN_DOMAIN}>",
-                    "to": email,
-                    "subject": f"Código de verificação: {pin}",
-                    "text": email_content,
-                    "html": html_content
-                }
-            )
-            return response.status_code == 200
-        except Exception as e:
-            print(f"Error sending verification email: {e}")
-            return False
 
 async def send_upload_email(filename: str, file_size: int, uploaded_by: str):
     """Send email notification for spreadsheet upload"""
@@ -1093,157 +990,22 @@ async def index(request: Request):
 
 @app.post("/validate-email")
 async def validate_email(email: str = Form(...)):
-    """Validate email and send PIN code"""
+    """Validate email and create session token"""
     if email.lower() not in ALLOWED_EMAILS:
         raise HTTPException(
             status_code=403, 
             detail="Email não autorizado. Acesso restrito."
         )
     
-    # Generate PIN and store verification data
-    pin = generate_pin()
-    verification_id = str(uuid.uuid4())
-    
-    pending_verifications[verification_id] = {
-        "email": email.lower(),
-        "pin": pin,
-        "attempts": 0,
-        "created": datetime.now(),
-        "expires": datetime.now() + timedelta(minutes=10)
-    }
-    
-    # Generate verification link
-    link = generate_verification_link(email, pin)
-    
-    # Send verification email
-    email_sent = await send_verification_email(email, pin, link)
-    
-    if not email_sent:
-        del pending_verifications[verification_id]
-        raise HTTPException(
-            status_code=500,
-            detail="Erro ao enviar email de verificação. Tente novamente."
-        )
-    
-    # Return verification ID (not the PIN!)
-    return {"verification_id": verification_id, "message": "Código enviado para seu email"}
-
-@app.post("/verify-pin")
-async def verify_pin(
-    verification_id: str = Form(...),
-    pin: str = Form(...)
-):
-    """Verify PIN and create session token"""
-    if verification_id not in pending_verifications:
-        raise HTTPException(
-            status_code=400,
-            detail="Código de verificação inválido ou expirado."
-        )
-    
-    verification = pending_verifications[verification_id]
-    
-    # Check if expired
-    if datetime.now() > verification["expires"]:
-        del pending_verifications[verification_id]
-        raise HTTPException(
-            status_code=400,
-            detail="Código de verificação expirado."
-        )
-    
-    # Check attempts
-    if verification["attempts"] >= 3:
-        del pending_verifications[verification_id]
-        raise HTTPException(
-            status_code=429,
-            detail="Muitas tentativas. Solicite um novo código."
-        )
-    
-    # Verify PIN
-    if pin != verification["pin"]:
-        verification["attempts"] += 1
-        raise HTTPException(
-            status_code=400,
-            detail="Código incorreto."
-        )
-    
-    # Success! Create session token
+    # Generate token
     token = str(uuid.uuid4())
     valid_tokens[token] = {
-        "email": verification["email"],
+        "email": email.lower(),
         "created": datetime.now()
     }
-    
-    # Clean up verification
-    del pending_verifications[verification_id]
     
     return {"token": token}
 
-@app.get("/verify")
-async def verify_from_link(
-    request: Request,
-    email: str,
-    pin: str
-):
-    """Verify from email link and redirect to upload page"""
-    # Find matching verification
-    verification_id = None
-    for vid, data in pending_verifications.items():
-        if data["email"] == email.lower() and data["pin"] == pin:
-            verification_id = vid
-            break
-    
-    if not verification_id:
-        # Show error page
-        return HTMLResponse("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Erro - SecureBox</title>
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-                .error { color: #DC2626; }
-            </style>
-        </head>
-        <body>
-            <h1>Link Inválido</h1>
-            <p class="error">Este link de verificação é inválido ou expirou.</p>
-            <a href="/">Voltar ao início</a>
-        </body>
-        </html>
-        """)
-    
-    # Create token
-    token = str(uuid.uuid4())
-    valid_tokens[token] = {
-        "email": email.lower(),
-        "created": datetime.now()
-    }
-    
-    # Clean up verification
-    del pending_verifications[verification_id]
-    
-    # Return page that sets token and redirects
-    return HTMLResponse(f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Verificado - SecureBox</title>
-        <script>
-            sessionStorage.setItem('upload_token', '{token}');
-            window.location.href = '/upload';
-        </script>
-    </head>
-    <body>
-        <p>Verificando...</p>
-    </body>
-    </html>
-    """)
-
-@app.get("/verify-pin", response_class=HTMLResponse)
-async def verify_pin_page(request: Request):
-    return templates.TemplateResponse("verify.html", {"request": request})
 
 @app.get("/upload", response_class=HTMLResponse)
 async def upload_page(request: Request):

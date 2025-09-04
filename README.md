@@ -5,7 +5,6 @@ A secure file upload system with email validation and S3 storage.
 ## Features
 
 - Email-based access control (supports multiple authorized users)
-- Two-factor authentication with PIN codes sent via email
 - Secure file upload to AWS S3 with validation:
   - File size limits (100MB max)
   - File type validation (CSV, XLS, XLSX only)
@@ -39,26 +38,21 @@ MAILGUN_API_KEY=your_mailgun_api_key
 MAILGUN_DOMAIN=your_mailgun_domain  # Optional, defaults to solmail.emptor-cdn.com
 ADMIN_EMAIL=admin@example.com       # Email to receive notifications
 ALLOWED_EMAILS=user1@example.com,user2@example.com  # Comma-separated list of allowed emails
-
-# App Configuration
-BASE_URL=https://securebox.emptor.io  # Base URL for verification links
 ```
 
 ## Usage
 
 1. User enters their email address
 2. System validates the email against ALLOWED_EMAILS list
-3. If valid, system sends a 6-digit PIN code via email
-4. User enters PIN code or clicks verification link in email
-5. After successful verification, user is redirected to upload page
-6. User can drag-and-drop or select a file to upload
-7. System validates:
+3. If valid, user receives a temporary token and is redirected to upload page
+4. User can drag-and-drop or select a file to upload
+5. System validates:
    - File size (max 100MB)
    - File extension (.csv, .xls, .xlsx)
    - File content (magic bytes)
    - Filename (sanitized for security)
-8. File is uploaded to S3 bucket
-9. Email notification is sent to admin
+6. File is uploaded to S3 bucket
+7. Email notification is sent to admin
 
 ## Deployment
 
