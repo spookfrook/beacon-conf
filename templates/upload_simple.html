@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureBox by Emptor - Upload de Arquivo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F9FAFB;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 640px;
+            width: 100%;
+            padding: 48px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            color: #111827;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: #6B7280;
+            font-size: 16px;
+            font-weight: 400;
+        }
+        
+        .upload-area {
+            border: 2px dashed #E5E7EB;
+            border-radius: 12px;
+            padding: 48px 24px;
+            text-align: center;
+            transition: all 0.2s;
+            margin-bottom: 24px;
+            background: #FAFAFA;
+        }
+        
+        .upload-area:hover {
+            border-color: #A855F7;
+            background: #FAF5FF;
+        }
+        
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
+            color: white;
+        }
+        
+        .upload-text {
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .upload-formats {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+        
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 10px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .file-input-wrapper {
+            margin: 20px 0;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 12px 24px;
+            background: #692494;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            background: #5a1f7a;
+        }
+        
+        .submit-btn:disabled {
+            background: #E5E7EB;
+            color: #9CA3AF;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .error-message {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        
+        .success-message {
+            background: #D4EDDA;
+            color: #155724;
+            text-align: center;
+        }
+        
+        .upload-info {
+            margin-top: 32px;
+            padding: 16px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6B7280;
+            text-align: center;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #692494;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #692494;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: #5a1f7a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="font-size: 48px; margin-bottom: 24px;">🔒</div>
+            <h1>SecureBox</h1>
+            <p class="subtitle">Upload seguro de planilhas</p>
+        </div>
+        
+        <!-- Check for success/error messages from URL parameters -->
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+            
+            if (success) {
+                document.write(`
+                    <div class="message success-message">
+                        <div style="font-size: 24px; margin-bottom: 10px;">✓</div>
+                        <strong>Upload concluído!</strong><br>
+                        Sua planilha foi enviada com sucesso e está segura.
+                        <br><br>
+                        <a href="/" class="back-btn">← Voltar ao início</a>
+                    </div>
+                `);
+                // Clear the token since upload is done
+                sessionStorage.removeItem('upload_token');
+            } else if (error) {
+                document.write(`
+                    <div class="message error-message">
+                        ${decodeURIComponent(error)}
+                    </div>
+                `);
+            }
+        </script>
+        
+        <!-- Only show form if no success message -->
+        <div id="uploadForm" style="display: none;">
+            <!-- Standard HTML form submission - no AJAX -->
+            <form action="/upload-file-form" method="POST" enctype="multipart/form-data" onsubmit="return handleSubmit()">
+                <input type="hidden" name="token" id="token">
+                
+                <div class="upload-area">
+                    <div class="upload-icon">📊</div>
+                    <p class="upload-text">Selecione sua planilha</p>
+                    <p class="upload-formats">Formatos aceitos: CSV, XLS, XLSX</p>
+                    
+                    <div class="file-input-wrapper">
+                        <input type="file" 
+                               name="file" 
+                               required 
+                               accept=".csv,.xls,.xlsx"
+                               id="fileInput">
+                    </div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px; color: #666;">Enviando arquivo...</p>
+                    <p style="margin-top: 10px; font-size: 12px; color: #999;">Por favor aguarde, não feche esta página.</p>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Enviar planilha →
+                </button>
+            </form>
+            
+            <div class="upload-info">
+                <strong>Segurança:</strong> Suas planilhas são criptografadas e armazenadas com segurança.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Only run this code if not showing success message
+        if (!urlParams.get('success')) {
+            document.getElementById('uploadForm').style.display = 'block';
+            
+            // Get token from sessionStorage and set it in the form
+            const token = sessionStorage.getItem('upload_token');
+            if (!token) {
+                window.location.href = '/';
+            } else {
+                document.getElementById('token').value = token;
+            }
+        }
+        
+        // Handle form submission
+        function handleSubmit() {
+            // Show loading state
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('fileInput').disabled = true;
+            document.querySelector('.upload-area').style.display = 'none';
+            
+            // Return true to allow normal form submission
+            return true;
+        }
+        
+        // Simple file validation
+        document.getElementById('fileInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const validExtensions = ['.csv', '.xls', '.xlsx'];
+                const fileName = file.name.toLowerCase();
+                const isValid = validExtensions.some(ext => fileName.endsWith(ext));
+                
+                if (!isValid) {
+                    alert('Por favor selecione um arquivo CSV, XLS ou XLSX');
+                    e.target.value = '';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

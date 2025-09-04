@@ -9,6 +9,7 @@
 #     "boto3",
 #     "httpx",
 #     "python-dotenv",
+#     "aiofiles",
 # ]
 # ///
 
@@ -17,12 +18,15 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, Form, Request, File, UploadFile, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+import re
+import asyncio
+from fastapi import FastAPI, Form, Request, File, UploadFile, HTTPException, BackgroundTasks
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import httpx
+import aiofiles
 
 # FastAPI app
 app = FastAPI()
@@ -42,8 +46,9 @@ S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
 MAILGUN_DOMAIN = "solmail.emptor-cdn.com"
 
-# Allowed email
-ALLOWED_EMAIL = "viviansantanna@99app.com"
+# Allowed emails
+ALLOWED_EMAILS_ENV = os.getenv("ALLOWED_EMAILS", "viviansantanna@99app.com,gabriel@emptor.io")
+ALLOWED_EMAILS = set(email.strip().lower() for email in ALLOWED_EMAILS_ENV.split(','))
 
 # Initialize S3 client
 try:
@@ -56,856 +61,49 @@ try:
 except Exception as e:
     print(f"Error initializing S3 client: {e}")
 
-# HTML template for email validation
-email_template = """
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureBox by Emptor - Upload Seguro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #F9FAFB;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Background gradient effect */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            max-width: 480px;
-            width: 100%;
-            padding: 48px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 48px;
-        }
-        
-
-        .logo {
-            height: 32px;
-            width: auto;
-        }
-        
-        .sol-detective {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #F3E8FF;
-        }
-        
-        .sol-detective video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        h1 {
-            color: #111827;
-            margin-bottom: 8px;
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-        
-        .subtitle {
-            color: #6B7280;
-            font-size: 16px;
-            font-weight: 400;
-        }
-        
-        .emptor-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 16px;
-            padding: 6px 12px;
-            background: #F3F4F6;
-            border-radius: 20px;
-            font-size: 12px;
-            color: #6B7280;
-        }
-        
-        .form-group {
-            margin-bottom: 24px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #374151;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        input[type="email"] {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        input[type="email"]:hover {
-            border-color: #D1D5DB;
-        }
-        
-        input[type="email"]:focus {
-            outline: none;
-            border-color: #7C3AED;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-        
-        .submit-btn {
-            width: 100%;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
-            margin-top: 32px;
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-        
-        .submit-btn:disabled {
-            background: #E5E7EB;
-            color: #9CA3AF;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-        
-        .error-message {
-            display: none;
-            padding: 12px 16px;
-            background: #FEE2E2;
-            color: #DC2626;
-            border-radius: 8px;
-            margin-top: 16px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .security-note {
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid #E5E7EB;
-            text-align: center;
-            font-size: 12px;
-            color: #9CA3AF;
-        }
-        
-        .security-note svg {
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 4px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo-container">
-                <img class="logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor Logo">
-            </div>
-            <h1>SecureBox</h1>
-            <p class="subtitle">Upload seguro de planilhas</p>
-        </div>
-        
-        <form id="emailForm">
-            <div class="form-group">
-                <label for="email">Email autorizado</label>
-                <input type="email" id="email" name="email" required placeholder="seu@email.com" autocomplete="email">
-            </div>
-            
-            <button type="submit" class="submit-btn">Acessar sistema →</button>
-        </form>
-        
-        <div class="error-message" id="errorMessage"></div>
-        
-        <div class="security-note">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-            </svg>
-            Conexão segura e criptografada
-        </div>
-    </div>
-    
-    <script>
-        document.getElementById('emailForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const submitBtn = document.querySelector('.submit-btn');
-            const errorMsg = document.getElementById('errorMessage');
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Verificando...';
-            errorMsg.style.display = 'none';
-            
-            try {
-                const response = await fetch('/validate-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `email=${encodeURIComponent(email)}`
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    // Store session token and redirect to upload page
-                    sessionStorage.setItem('upload_token', data.token);
-                    window.location.href = '/upload';
-                } else {
-                    const error = await response.json();
-                    errorMsg.textContent = error.detail;
-                    errorMsg.style.display = 'block';
-                }
-            } catch (error) {
-                errorMsg.textContent = 'Erro ao verificar email. Tente novamente.';
-                errorMsg.style.display = 'block';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Continuar';
-            }
-        });
-    </script>
-</body>
-</html>
-"""
-
-# HTML template for file upload
-upload_template = """
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureBox by Emptor - Upload de Arquivo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #F9FAFB;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Background gradient effect */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            max-width: 640px;
-            width: 100%;
-            padding: 48px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .step-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 32px;
-        }
-        
-        .step {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .step.completed {
-            background: #10B981;
-            color: white;
-        }
-        
-        .step.completed::before {
-            content: '✓';
-        }
-        
-        .step.active {
-            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
-            color: white;
-            box-shadow: 0 4px 8px -2px rgba(124, 58, 237, 0.3);
-        }
-        
-        .step-line {
-            width: 40px;
-            height: 2px;
-            background: #E5E7EB;
-        }
-        
-        h1 {
-            color: #111827;
-            margin-bottom: 8px;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-        
-        .subtitle {
-            color: #6B7280;
-            font-size: 16px;
-            font-weight: 400;
-        }
-        
-        .upload-area {
-            border: 2px dashed #E5E7EB;
-            border-radius: 12px;
-            padding: 48px 24px;
-            text-align: center;
-            transition: all 0.2s;
-            cursor: pointer;
-            margin-bottom: 24px;
-            background: #FAFAFA;
-        }
-        
-        .upload-area:hover {
-            border-color: #A855F7;
-            background: #FAF5FF;
-        }
-        
-        .upload-area.drag-over {
-            border-color: #7C3AED;
-            background: #F3E8FF;
-            border-style: solid;
-        }
-        
-        .brand-header {
-            position: absolute;
-            top: 24px;
-            left: 24px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .brand-logo {
-            height: 20px;
-            width: auto;
-        }
-        
-        .upload-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 24px;
-            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
-            color: white;
-        }
-        
-        .upload-text {
-            color: #374151;
-            margin-bottom: 8px;
-            font-size: 16px;
-            font-weight: 600;
-        }
-        
-        .upload-subtext {
-            color: #9CA3AF;
-            font-size: 14px;
-        }
-        
-        .upload-formats {
-            margin-top: 16px;
-            font-size: 12px;
-            color: #9CA3AF;
-        }
-        
-        input[type="file"] {
-            display: none;
-        }
-        
-        .file-info {
-            background: #F9FAFB;
-            border: 1px solid #E5E7EB;
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-            display: none;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .file-icon {
-            width: 48px;
-            height: 48px;
-            background: #F3E8FF;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-        
-        .file-details {
-            flex: 1;
-        }
-        
-        .file-info .filename {
-            color: #111827;
-            font-weight: 600;
-            margin-bottom: 4px;
-            word-break: break-all;
-        }
-        
-        .file-info .filesize {
-            color: #6B7280;
-            font-size: 14px;
-        }
-        
-        .file-remove {
-            padding: 8px 16px;
-            background: white;
-            border: 1px solid #E5E7EB;
-            border-radius: 6px;
-            color: #EF4444;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .file-remove:hover {
-            background: #FEE2E2;
-            border-color: #FECACA;
-        }
-        
-        .submit-btn {
-            width: 100%;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: none;
-            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-        
-        .submit-btn:disabled {
-            background: #E5E7EB;
-            color: #9CA3AF;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-        
-        .success-container {
-            display: none;
-            text-align: center;
-            padding: 48px;
-        }
-        
-        .success-icon {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 24px;
-            background: #F3E8FF;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);
-        }
-        
-        .success-icon video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .success-title {
-            color: #111827;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-        
-        .success-message {
-            color: #6B7280;
-            font-size: 16px;
-            margin-bottom: 32px;
-        }
-        
-        .back-btn {
-            padding: 12px 24px;
-            background: white;
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
-            color: #374151;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .back-btn:hover {
-            background: #F9FAFB;
-            border-color: #D1D5DB;
-        }
-        
-        .error-message {
-            display: none;
-            padding: 16px;
-            background: #FEE2E2;
-            color: #DC2626;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .progress-bar {
-            display: none;
-            height: 8px;
-            background: #E5E7EB;
-            border-radius: 4px;
-            margin-bottom: 24px;
-            overflow: hidden;
-        }
-        
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #7C3AED 0%, #A855F7 100%);
-            width: 0%;
-            transition: width 0.3s;
-            border-radius: 4px;
-        }
-        
-        .upload-info {
-            margin-top: 32px;
-            padding: 16px;
-            background: #F3F4F6;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #6B7280;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div style="font-size: 48px; margin-bottom: 24px;">🔒</div>
-            <h1>SecureBox</h1>
-            <p class="subtitle">Upload seguro de planilhas</p>
-        </div>
-        <div class="upload-container" id="uploadContainer">
-            <div class="header">
-                <div class="step-indicator">
-                    <div class="step completed"></div>
-                    <div class="step-line"></div>
-                    <div class="step active">2</div>
-                </div>
-                <h1>Upload de Planilha</h1>
-                <p class="subtitle">Envie sua planilha de forma segura</p>
-            </div>
-            
-            <form id="uploadForm">
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">📊</div>
-                    <p class="upload-text">Arraste sua planilha aqui</p>
-                    <p class="upload-subtext">ou clique para selecionar</p>
-                    <p class="upload-formats">Formatos aceitos: CSV, XLS, XLSX</p>
-                    <input type="file" id="fileInput" name="file" required accept=".csv,.xls,.xlsx">
-                </div>
-                
-                <div class="file-info" id="fileInfo">
-                    <div class="file-icon">📄</div>
-                    <div class="file-details">
-                        <div class="filename" id="fileName"></div>
-                        <div class="filesize" id="fileSize"></div>
-                    </div>
-                    <button type="button" class="file-remove" id="removeFile">Remover</button>
-                </div>
-                
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-bar-fill" id="progressBarFill"></div>
-                </div>
-                
-                <button type="submit" class="submit-btn" id="submitBtn">Enviar planilha →</button>
-                
-                <div class="error-message" id="errorMessage"></div>
-            </form>
-            
-                <div class="upload-info">
-                <strong>Segurança:</strong> Suas planilhas são criptografadas e armazenadas com segurança em conformidade com as normas de proteção de dados.
-            </div>
-        </div>
-        
-        <div class="success-container" id="successContainer">
-            <div class="success-icon">
-                <video autoplay loop muted playsinline>
-                    <source src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm" type="video/webm">
-                </video>
-            </div>
-            <h2 class="success-title">Upload concluído!</h2>
-            <p class="success-message">Sua planilha foi enviada com sucesso e está segura.</p>
-            <button class="back-btn" onclick="window.location.href='/'">← Voltar ao início</button>
-        </div>
-    </div>
-    
-    <script>
-        // Check if user has valid token
-        const token = sessionStorage.getItem('upload_token');
-        if (!token) {
-            window.location.href = '/';
-        }
-        
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-        const fileSize = document.getElementById('fileSize');
-        const submitBtn = document.getElementById('submitBtn');
-        const progressBar = document.getElementById('progressBar');
-        const progressBarFill = document.getElementById('progressBarFill');
-        
-        // Click to select file
-        uploadArea.addEventListener('click', () => fileInput.click());
-        
-        // Drag and drop
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('drag-over');
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('drag-over');
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('drag-over');
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                handleFileSelect(files[0]);
-            }
-        });
-        
-        // File input change
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileSelect(e.target.files[0]);
-            }
-        });
-        
-        function handleFileSelect(file) {
-            // Update file icon based on type
-            const fileIcon = document.querySelector('.file-icon');
-            const extension = file.name.split('.').pop().toLowerCase();
-            const iconMap = {
-                'csv': '📊',
-                'xls': '📊',
-                'xlsx': '📊'
-            };
-            fileIcon.textContent = iconMap[extension] || '📄';
-            
-            fileName.textContent = file.name;
-            fileSize.textContent = formatFileSize(file.size);
-            fileInfo.style.display = 'flex';
-            submitBtn.style.display = 'block';
-            uploadArea.style.display = 'none';
-        }
-        
-        // Remove file
-        document.getElementById('removeFile').addEventListener('click', () => {
-            fileInput.value = '';
-            fileInfo.style.display = 'none';
-            submitBtn.style.display = 'none';
-            uploadArea.style.display = 'block';
-        });
-        
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-        
-        // Form submission
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Enviando...';
-            progressBar.style.display = 'block';
-            document.getElementById('errorMessage').style.display = 'none';
-            
-            // Simulate progress
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += Math.random() * 30;
-                if (progress > 90) progress = 90;
-                progressBarFill.style.width = progress + '%';
-            }, 200);
-            
-            try {
-                const response = await fetch('/upload-file', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    clearInterval(progressInterval);
-                    progressBarFill.style.width = '100%';
-                    
-                    // Short delay for visual feedback
-                    setTimeout(() => {
-                        // Show success screen
-                        document.getElementById('uploadContainer').style.display = 'none';
-                        document.getElementById('successContainer').style.display = 'block';
-                    }, 500);
-                    
-                    // Clear token after successful upload
-                    sessionStorage.removeItem('upload_token');
-                } else {
-                    clearInterval(progressInterval);
-                    const error = await response.json();
-                    document.getElementById('errorMessage').textContent = error.detail || 'Erro ao enviar arquivo.';
-                    document.getElementById('errorMessage').style.display = 'block';
-                    progressBarFill.style.width = '0%';
-                }
-            } catch (error) {
-                clearInterval(progressInterval);
-                document.getElementById('errorMessage').textContent = 'Erro ao enviar arquivo. Verifique sua conexão.';
-                document.getElementById('errorMessage').style.display = 'block';
-                progressBarFill.style.width = '0%';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar arquivo →';
-                setTimeout(() => {
-                    progressBar.style.display = 'none';
-                }, 1000);
-            }
-        });
-    </script>
-</body>
-</html>
-"""
-
-# Save templates
-(templates_dir / "index.html").write_text(email_template)
-(templates_dir / "upload.html").write_text(upload_template)
-
 templates = Jinja2Templates(directory=str(templates_dir))
 
 # Simple in-memory token storage (in production, use Redis or similar)
 valid_tokens = {}
 
-async def send_upload_email(filename: str, file_size: int):
+# Limits and constants
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+CHUNK_SIZE = 1 * 1024 * 1024      # 1MB chunks
+ALLOWED_EXTENSIONS = {'.csv', '.xls', '.xlsx'}
+
+
+def sanitize_filename(filename: str) -> str:
+    filename = os.path.basename(filename)
+    filename = re.sub(r'[^\w\-.]', '_', filename)
+    filename = re.sub(r'\.+', '.', filename)
+    name, ext = os.path.splitext(filename)
+    if len(name) > 100:
+        name = name[:100]
+    return name + ext
+
+
+async def upload_to_s3_async(local_path: Path, s3_key: str):
+    """Upload file to S3 in a thread executor to avoid blocking the event loop."""
+    loop = asyncio.get_event_loop()
+
+    def _upload():
+        if s3_client and S3_BUCKET_NAME:
+            try:
+                s3_client.upload_file(
+                    str(local_path),
+                    S3_BUCKET_NAME,
+                    s3_key,
+                    ExtraArgs={'ContentType': 'application/octet-stream'}
+                )
+                return True
+            except Exception as e:
+                print(f"S3 upload error: {e}")
+                return False
+        return False
+
+    return await loop.run_in_executor(None, _upload)
+
+async def send_upload_email(filename: str, file_size: int, uploaded_by: str):
     """Send email notification for spreadsheet upload"""
     if not MAILGUN_API_KEY:
         print("Mailgun API key not configured")
@@ -917,7 +115,7 @@ Nova planilha enviada ao SecureBox:
 Arquivo: {filename}
 Tamanho: {file_size:,} bytes
 Data: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Enviado por: {ALLOWED_EMAIL}
+Enviado por: {uploaded_by}
 Bucket S3: {S3_BUCKET_NAME}
 """
     
@@ -945,7 +143,7 @@ async def index(request: Request):
 @app.post("/validate-email")
 async def validate_email(email: str = Form(...)):
     """Validate email and create session token"""
-    if email.lower() != ALLOWED_EMAIL.lower():
+    if email.lower() not in ALLOWED_EMAILS:
         raise HTTPException(
             status_code=403, 
             detail="Email não autorizado. Acesso restrito."
@@ -964,77 +162,92 @@ async def validate_email(email: str = Form(...)):
 async def upload_page(request: Request):
     return templates.TemplateResponse("upload.html", {"request": request})
 
-@app.post("/upload-file")
-async def upload_file(
-    request: Request,
-    file: UploadFile = File(...)
-):
-    """Upload file to S3"""
-    # Validate token
+def _extract_token(request: Request, form_token: str | None) -> str:
     auth_header = request.headers.get("Authorization", "")
-    if not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Token inválido")
-    
-    token = auth_header.replace("Bearer ", "")
+    if auth_header.startswith("Bearer "):
+        return auth_header.replace("Bearer ", "")
+    if form_token:
+        return form_token
+    raise HTTPException(status_code=401, detail="Token inválido")
+
+
+async def _handle_upload(request: Request, background_tasks: BackgroundTasks, file: UploadFile, form_token: str | None = None):
+    token = _extract_token(request, form_token)
     if token not in valid_tokens:
         raise HTTPException(status_code=401, detail="Token inválido ou expirado")
-    
-    # Check token age (expire after 10 minutes)
+
     token_data = valid_tokens[token]
     if (datetime.now() - token_data["created"]).seconds > 600:
         del valid_tokens[token]
         raise HTTPException(status_code=401, detail="Token expirado")
-    
-    # Validate file
+
     if not file or not file.filename:
         raise HTTPException(status_code=400, detail="Nenhum arquivo foi enviado")
-    
-    # Validate file type
-    allowed_extensions = {'.csv', '.xls', '.xlsx'}
-    file_extension = Path(file.filename).suffix.lower()
-    if file_extension not in allowed_extensions:
-        raise HTTPException(
-            status_code=400, 
-            detail="Tipo de arquivo não permitido. Apenas planilhas CSV, XLS e XLSX são aceitas."
-        )
-    
-    # Check S3 configuration
-    if not S3_BUCKET_NAME:
-        raise HTTPException(status_code=500, detail="S3 bucket não configurado")
-    
+
+    original_filename = file.filename
+    sanitized = sanitize_filename(original_filename)
+    file_extension = Path(sanitized).suffix.lower()
+    if file_extension not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail="Tipo de arquivo não permitido. Apenas planilhas CSV, XLS e XLSX são aceitas.")
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    unique_id = str(uuid.uuid4())[:8]
+    final_name = f"{timestamp}_{unique_id}_{sanitized}"
+
+    # Save to temp directory streaming to disk
+    temp_dir = Path(__file__).parent / "temp_uploads"
+    temp_dir.mkdir(exist_ok=True)
+    temp_path = temp_dir / final_name
+
     try:
-        # Generate unique filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{timestamp}_{file.filename}"
-        
-        # Reset file position to beginning
-        await file.seek(0)
-        
-        
-        # Upload to S3
-        s3_client.upload_fileobj(
-            file.file,
-            S3_BUCKET_NAME,
-            filename,
-            ExtraArgs={'ContentType': file.content_type or 'application/octet-stream'}
-        )
-        
-        # Send email notification
-        await send_upload_email(file.filename, file.size or 0)
-        
+        total_written = 0
+        async with aiofiles.open(temp_path, 'wb') as f:
+            while chunk := await file.read(CHUNK_SIZE):
+                total_written += len(chunk)
+                if total_written > MAX_FILE_SIZE:
+                    # stop reading further
+                    await f.flush()
+                    await f.close()
+                    temp_path.unlink(missing_ok=True)
+                    raise HTTPException(status_code=413, detail="Arquivo muito grande (limite 10MB)")
+                await f.write(chunk)
+
+        # Schedule background S3 upload if configured
+        if s3_client and S3_BUCKET_NAME:
+            async def do_upload_and_notify():
+                success = await upload_to_s3_async(temp_path, final_name)
+                try:
+                    await send_upload_email(original_filename, total_written, token_data["email"])
+                finally:
+                    if temp_path.exists():
+                        temp_path.unlink()
+
+            background_tasks.add_task(do_upload_and_notify)
+        else:
+            # No S3 configured: just send email and keep file locally
+            background_tasks.add_task(send_upload_email, original_filename, total_written, token_data["email"])
+
         # Remove used token
         del valid_tokens[token]
-        
-        return {
-            "message": "Arquivo enviado com sucesso",
-            "filename": filename,
-            "size": file.size
-        }
-        
-    except NoCredentialsError:
-        raise HTTPException(status_code=500, detail="Credenciais AWS não configuradas")
+
+        return {"message": "Arquivo enviado com sucesso", "filename": final_name, "size": total_written}
+    except HTTPException:
+        raise
     except Exception as e:
+        if temp_path.exists():
+            temp_path.unlink()
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/upload-file")
+async def upload_file(request: Request, background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+    return await _handle_upload(request, background_tasks, file)
+
+
+@app.post("/upload")
+async def upload_file_alias(request: Request, background_tasks: BackgroundTasks, file: UploadFile = File(...), token: str | None = Form(None)):
+    """Alias endpoint to accept standard POST form uploads. Token can be sent as Authorization header or form field 'token'."""
+    return await _handle_upload(request, background_tasks, file, token)
 
 if __name__ == "__main__":
     import uvicorn
