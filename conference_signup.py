@@ -989,23 +989,15 @@ async def send_verification_email(email: str, pin: str, link: str) -> bool:
         return False
     
     email_content = f"""
-Seu código de verificação SecureBox
+SecureBox - Código de verificação
 
-Olá,
+Seu código PIN: {pin}
 
-Você solicitou acesso ao SecureBox. Use o código abaixo para continuar:
+Ou acesse: {link}
 
-Código PIN: {pin}
-
-Ou clique no link abaixo para verificar automaticamente:
-{link}
-
-Este código expira em 10 minutos.
+Válido por 10 minutos.
 
 Se você não solicitou este código, ignore este email.
-
-Atenciosamente,
-Equipe SecureBox
 """
     
     html_content = f"""
@@ -1014,38 +1006,36 @@ Equipe SecureBox
 <head>
     <meta charset="UTF-8">
     <style>
-        body {{ font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }}
-        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-        .header {{ background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
-        .content {{ background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-radius: 0 0 10px 10px; }}
-        .pin-code {{ background: white; border: 2px solid #7C3AED; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; font-size: 32px; font-weight: bold; color: #7C3AED; letter-spacing: 8px; }}
-        .button {{ display: inline-block; background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
-        .footer {{ text-align: center; margin-top: 20px; color: #666; font-size: 14px; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.5; color: #333; margin: 0; padding: 0; }}
+        .container {{ max-width: 500px; margin: 20px auto; }}
+        .header {{ background: #f8f9fa; border-bottom: 2px solid #e9ecef; padding: 20px; text-align: center; }}
+        .content {{ background: white; padding: 20px; border: 1px solid #e9ecef; }}
+        .pin-code {{ background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; text-align: center; margin: 15px 0; font-size: 28px; font-weight: bold; color: #212529; letter-spacing: 6px; font-family: monospace; }}
+        .button {{ display: inline-block; background: #6c757d; color: white; padding: 10px 24px; text-decoration: none; border-radius: 4px; margin: 10px 0; font-size: 14px; }}
+        .button:hover {{ background: #5a6268; }}
+        .footer {{ margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 13px; }}
+        h2 {{ margin: 0; font-size: 24px; font-weight: 600; color: #212529; }}
+        p {{ margin: 10px 0; }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>SecureBox</h1>
-            <p>Verificação de Email</p>
+            <h2>SecureBox - Verificação</h2>
         </div>
         <div class="content">
-            <p>Olá,</p>
-            <p>Você solicitou acesso ao SecureBox. Use o código abaixo para continuar:</p>
+            <p>Seu código de verificação:</p>
             
             <div class="pin-code">{pin}</div>
             
-            <p style="text-align: center;">Ou clique no botão abaixo para verificar automaticamente:</p>
+            <p style="text-align: center;">
+                <a href="{link}" class="button">Verificar Automaticamente</a>
+            </p>
             
-            <div style="text-align: center;">
-                <a href="{link}" class="button">Verificar Email</a>
-            </div>
-            
-            <p style="color: #666; font-size: 14px;">Este código expira em 10 minutos.</p>
+            <p style="color: #6c757d; font-size: 13px; text-align: center;">Código válido por 10 minutos</p>
             
             <div class="footer">
                 <p>Se você não solicitou este código, ignore este email.</p>
-                <p>Atenciosamente,<br>Equipe SecureBox</p>
             </div>
         </div>
     </div>
