@@ -4,7 +4,7 @@ A secure file upload system with email validation and S3 storage.
 
 ## Features
 
-- Email-based access control (restricted to specific email)
+- Email-based access control (supports multiple authorized users)
 - Secure file upload to AWS S3 with validation:
   - File size limits (100MB max)
   - File type validation (CSV, XLS, XLSX only)
@@ -37,13 +37,13 @@ S3_BUCKET_NAME=your_bucket_name
 MAILGUN_API_KEY=your_mailgun_api_key
 MAILGUN_DOMAIN=your_mailgun_domain  # Optional, defaults to solmail.emptor-cdn.com
 ADMIN_EMAIL=admin@example.com       # Email to receive notifications
-ALLOWED_EMAIL=user@example.com      # Email allowed to login
+ALLOWED_EMAILS=user1@example.com,user2@example.com  # Comma-separated list of allowed emails
 ```
 
 ## Usage
 
 1. User enters their email address
-2. System validates the email against ALLOWED_EMAIL environment variable
+2. System validates the email against ALLOWED_EMAILS list
 3. If valid, user receives a temporary token and is redirected to upload page
 4. User can drag-and-drop or select a file to upload
 5. System validates:

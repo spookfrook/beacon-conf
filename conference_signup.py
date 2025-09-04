@@ -61,8 +61,9 @@ S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
 MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN", "solmail.emptor-cdn.com")
 
-# Allowed email
-ALLOWED_EMAIL = os.getenv("ALLOWED_EMAIL", "viviansantanna@99app.com")
+# Allowed emails - can be set as comma-separated list in env var
+ALLOWED_EMAILS_ENV = os.getenv("ALLOWED_EMAILS", "viviansantanna@99app.com,gabriel@emptor.io,gissele@emptor.io,claudia@emptor.io")
+ALLOWED_EMAILS = set(email.strip().lower() for email in ALLOWED_EMAILS_ENV.split(','))
 
 # Initialize S3 client
 try:
@@ -964,7 +965,7 @@ def validate_file_content(file_content: bytes, extension: str) -> bool:
     
     return False
 
-async def send_upload_email(filename: str, file_size: int):
+async def send_upload_email(filename: str, file_size: int, uploaded_by: str):
     """Send email notification for spreadsheet upload"""
     if not MAILGUN_API_KEY:
         print("Mailgun API key not configured")
@@ -976,7 +977,7 @@ Nova planilha enviada ao SecureBox:
 Arquivo: {filename}
 Tamanho: {file_size:,} bytes
 Data: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Enviado por: {ALLOWED_EMAIL}
+Enviado por: {uploaded_by}
 Bucket S3: {S3_BUCKET_NAME}
 """
     
@@ -1004,7 +1005,7 @@ async def index(request: Request):
 @app.post("/validate-email")
 async def validate_email(email: str = Form(...)):
     """Validate email and create session token"""
-    if email.lower() != ALLOWED_EMAIL.lower():
+    if email.lower() not in ALLOWED_EMAILS:
         raise HTTPException(
             status_code=403, 
             detail="Email não autorizado. Acesso restrito."
@@ -1111,8 +1112,9 @@ async def upload_file(
             ExtraArgs={'ContentType': file.content_type or 'application/octet-stream'}
         )
         
-        # Send email notification
-        await send_upload_email(sanitized_filename, len(file_content))
+        # Send email notification with user info
+        user_email = valid_tokens[token]["email"]
+        await send_upload_email(sanitized_filename, len(file_content), user_email)
         
         # Remove used token
         del valid_tokens[token]
