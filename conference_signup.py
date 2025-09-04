@@ -1011,9 +1011,19 @@ Se você não solicitou este código, ignore este email.
             
             <div class="pin-code">{pin}</div>
             
-            <p style="text-align: center;">
-                <a href="{link}" class="button">Verificar Automaticamente</a>
-            </p>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center" style="padding: 20px 0;">
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td align="center" bgcolor="#692494" style="border-radius: 8px;">
+                                    <a href="{link}" target="_blank" style="display: inline-block; padding: 12px 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 500; color: #ffffff; text-decoration: none; border-radius: 8px;">Verificar Automaticamente</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
             
             <p style="color: #6c757d; font-size: 13px; text-align: center;">Código válido por 10 minutos</p>
             
