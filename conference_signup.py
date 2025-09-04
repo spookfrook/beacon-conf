@@ -14,6 +14,7 @@
 
 import os
 import uuid
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -26,6 +27,24 @@ import httpx
 
 # FastAPI app
 app = FastAPI()
+
+# File upload security constants
+MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
+ALLOWED_EXTENSIONS = {'.csv', '.xls', '.xlsx'}
+ALLOWED_CONTENT_TYPES = {
+    'text/csv',
+    'application/csv',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/octet-stream'  # Some browsers send this for Excel files
+}
+
+# Magic bytes for file type validation
+FILE_SIGNATURES = {
+    '.csv': [b'', b'\xef\xbb\xbf'],  # CSV can start with BOM or plain text
+    '.xls': [b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'],  # MS Excel 97-2003
+    '.xlsx': [b'PK\x03\x04', b'PK\x05\x06', b'PK\x07\x08']  # XLSX is ZIP-based
+}
 
 # Create templates directory
 templates_dir = Path(__file__).parent / "templates"
@@ -40,10 +59,10 @@ S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 
 # Mailgun configuration
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
-MAILGUN_DOMAIN = "solmail.emptor-cdn.com"
+MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN", "solmail.emptor-cdn.com")
 
 # Allowed email
-ALLOWED_EMAIL = "viviansantanna@99app.com"
+ALLOWED_EMAIL = os.getenv("ALLOWED_EMAIL", "viviansantanna@99app.com")
 
 # Initialize S3 client
 try:
@@ -905,6 +924,46 @@ templates = Jinja2Templates(directory=str(templates_dir))
 # Simple in-memory token storage (in production, use Redis or similar)
 valid_tokens = {}
 
+def sanitize_filename(filename: str) -> str:
+    """Sanitize filename to prevent directory traversal and other issues"""
+    # Remove any path components
+    filename = os.path.basename(filename)
+    # Remove any non-alphanumeric characters except dots, hyphens, and underscores
+    filename = re.sub(r'[^\w\-.]', '_', filename)
+    # Remove multiple dots to prevent extension confusion
+    filename = re.sub(r'\.+', '.', filename)
+    # Limit length
+    name, ext = os.path.splitext(filename)
+    if len(name) > 100:
+        name = name[:100]
+    return name + ext
+
+def validate_file_content(file_content: bytes, extension: str) -> bool:
+    """Validate file content matches the expected file type"""
+    if extension not in FILE_SIGNATURES:
+        return False
+    
+    # For CSV files, we'll check if it's text-based
+    if extension == '.csv':
+        try:
+            # Try to decode first 1000 bytes as text
+            file_content[:1000].decode('utf-8-sig')
+            return True
+        except UnicodeDecodeError:
+            try:
+                file_content[:1000].decode('latin-1')
+                return True
+            except:
+                return False
+    
+    # For other files, check magic bytes
+    signatures = FILE_SIGNATURES[extension]
+    for signature in signatures:
+        if file_content.startswith(signature):
+            return True
+    
+    return False
+
 async def send_upload_email(filename: str, file_size: int):
     """Send email notification for spreadsheet upload"""
     if not MAILGUN_API_KEY:
@@ -928,7 +987,7 @@ Bucket S3: {S3_BUCKET_NAME}
                 auth=("api", MAILGUN_API_KEY),
                 data={
                     "from": f"SecureBox <noreply@{MAILGUN_DOMAIN}>",
-                    "to": "gabriel@emptor.io",
+                    "to": os.getenv("ADMIN_EMAIL", "gabriel@emptor.io"),
                     "subject": f"Nova planilha: {filename}",
                     "text": email_content
                 }
@@ -969,7 +1028,7 @@ async def upload_file(
     request: Request,
     file: UploadFile = File(...)
 ):
-    """Upload file to S3"""
+    """Upload file to S3 with security validations"""
     # Validate token
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
@@ -985,56 +1044,94 @@ async def upload_file(
         del valid_tokens[token]
         raise HTTPException(status_code=401, detail="Token expirado")
     
-    # Validate file
+    # Validate file exists
     if not file or not file.filename:
         raise HTTPException(status_code=400, detail="Nenhum arquivo foi enviado")
     
-    # Validate file type
-    allowed_extensions = {'.csv', '.xls', '.xlsx'}
-    file_extension = Path(file.filename).suffix.lower()
-    if file_extension not in allowed_extensions:
+    # Sanitize and validate filename
+    original_filename = file.filename
+    sanitized_filename = sanitize_filename(original_filename)
+    file_extension = Path(sanitized_filename).suffix.lower()
+    
+    # Validate file extension
+    if file_extension not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=400, 
             detail="Tipo de arquivo não permitido. Apenas planilhas CSV, XLS e XLSX são aceitas."
         )
     
+    # Validate content type
+    if file.content_type and file.content_type not in ALLOWED_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Tipo de conteúdo inválido para planilha."
+        )
+    
+    # Check file size
+    if file.size and file.size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Arquivo muito grande. Tamanho máximo permitido: {MAX_FILE_SIZE // (1024*1024)}MB"
+        )
+    
     # Check S3 configuration
     if not S3_BUCKET_NAME:
-        raise HTTPException(status_code=500, detail="S3 bucket não configurado")
+        raise HTTPException(status_code=500, detail="Erro de configuração do servidor")
     
     try:
-        # Generate unique filename
+        # Read file content for validation
+        file_content = await file.read()
+        
+        # Validate file size after reading
+        if len(file_content) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Arquivo muito grande. Tamanho máximo permitido: {MAX_FILE_SIZE // (1024*1024)}MB"
+            )
+        
+        # Validate file content matches expected type
+        if not validate_file_content(file_content, file_extension):
+            raise HTTPException(
+                status_code=400,
+                detail="O conteúdo do arquivo não corresponde ao tipo esperado."
+            )
+        
+        # Generate unique filename with sanitized name
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{timestamp}_{file.filename}"
+        final_filename = f"{timestamp}_{sanitized_filename}"
         
-        # Reset file position to beginning
-        await file.seek(0)
+        # Upload to S3 using file content
+        from io import BytesIO
+        file_obj = BytesIO(file_content)
         
-        
-        # Upload to S3
         s3_client.upload_fileobj(
-            file.file,
+            file_obj,
             S3_BUCKET_NAME,
-            filename,
+            final_filename,
             ExtraArgs={'ContentType': file.content_type or 'application/octet-stream'}
         )
         
         # Send email notification
-        await send_upload_email(file.filename, file.size or 0)
+        await send_upload_email(sanitized_filename, len(file_content))
         
         # Remove used token
         del valid_tokens[token]
         
         return {
             "message": "Arquivo enviado com sucesso",
-            "filename": filename,
-            "size": file.size
+            "filename": final_filename,
+            "size": len(file_content)
         }
         
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
     except NoCredentialsError:
-        raise HTTPException(status_code=500, detail="Credenciais AWS não configuradas")
+        raise HTTPException(status_code=500, detail="Erro de configuração do servidor")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Log the actual error server-side but return generic message
+        print(f"Upload error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erro ao processar arquivo. Tente novamente.")
 
 if __name__ == "__main__":
     import uvicorn
