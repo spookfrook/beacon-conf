@@ -289,7 +289,7 @@ email_template = """
                 <input type="email" id="email" name="email" required placeholder="seu@email.com" autocomplete="email">
             </div>
             
-            <button type="submit" class="submit-btn">Acessar sistema →</button>
+            <button type="submit" class="submit-btn">Enviar código de verificação →</button>
         </form>
         
         <div class="error-message" id="errorMessage"></div>
@@ -325,9 +325,10 @@ email_template = """
                 
                 if (response.ok) {
                     const data = await response.json();
-                    // Store session token and redirect to upload page
-                    sessionStorage.setItem('upload_token', data.token);
-                    window.location.href = '/upload';
+                    // Store verification ID and email, then redirect to PIN page
+                    sessionStorage.setItem('verification_id', data.verification_id);
+                    sessionStorage.setItem('user_email', email);
+                    window.location.href = '/verify-pin';
                 } else {
                     const error = await response.json();
                     errorMsg.textContent = error.detail;
@@ -338,7 +339,7 @@ email_template = """
                 errorMsg.style.display = 'block';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Continuar';
+                submitBtn.textContent = 'Enviar código de verificação →';
             }
         });
     </script>
