@@ -8,6 +8,7 @@
 #     "jinja2",
 #     "boto3",
 #     "httpx",
+#     "python-dotenv",
 # ]
 # ///
 
@@ -36,6 +37,7 @@ AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 
+
 # Mailgun configuration
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
 MAILGUN_DOMAIN = "solmail.emptor-cdn.com"
@@ -44,12 +46,15 @@ MAILGUN_DOMAIN = "solmail.emptor-cdn.com"
 ALLOWED_EMAIL = "viviansantanna@99app.com"
 
 # Initialize S3 client
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    region_name=AWS_REGION
-)
+try:
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_REGION
+    )
+except Exception as e:
+    print(f"Error initializing S3 client: {e}")
 
 # HTML template for email validation
 email_template = """
@@ -251,11 +256,6 @@ email_template = """
         <div class="header">
             <div class="logo-container">
                 <img class="logo" src="https://www.emptor.io/assets/Logo-Emptor-1.svg" alt="Emptor Logo">
-                <div class="sol-detective">
-                    <video autoplay loop muted playsinline>
-                        <source src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm" type="video/webm">
-                    </video>
-                </div>
             </div>
             <h1>SecureBox</h1>
             <p class="subtitle">Upload seguro de planilhas</p>
@@ -1009,6 +1009,7 @@ async def upload_file(
         
         # Reset file position to beginning
         await file.seek(0)
+        
         
         # Upload to S3
         s3_client.upload_fileobj(
