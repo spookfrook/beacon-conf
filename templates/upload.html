@@ -238,33 +238,25 @@
         .submit-btn {
             width: 100%;
             padding: 12px 24px;
-            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            background: #692494;
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             display: none;
-            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
         }
         
         .submit-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
+            background: #5a1f7a;
         }
         
         .submit-btn:disabled {
             background: #E5E7EB;
             color: #9CA3AF;
             cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
         }
         
         .success-container {
@@ -305,10 +297,10 @@
         
         .back-btn {
             padding: 12px 24px;
-            background: white;
-            border: 1px solid #E5E7EB;
+            background: #692494;
+            border: none;
             border-radius: 8px;
-            color: #374151;
+            color: white;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
@@ -316,8 +308,7 @@
         }
         
         .back-btn:hover {
-            background: #F9FAFB;
-            border-color: #D1D5DB;
+            background: #5a1f7a;
         }
         
         .error-message {
@@ -469,28 +460,9 @@
         });
         
         function handleFileSelect(file) {
-            const errorMsg = document.getElementById('errorMessage');
-            errorMsg.style.display = 'none';
-            
-            // Validate file size (100MB limit)
-            const maxSize = 100 * 1024 * 1024; // 100MB
-            if (file.size > maxSize) {
-                errorMsg.textContent = 'Arquivo muito grande. Tamanho máximo permitido: 100MB';
-                errorMsg.style.display = 'block';
-                return;
-            }
-            
-            // Validate file type
-            const extension = file.name.split('.').pop().toLowerCase();
-            const allowedExtensions = ['csv', 'xls', 'xlsx'];
-            if (!allowedExtensions.includes(extension)) {
-                errorMsg.textContent = 'Tipo de arquivo não permitido. Apenas planilhas CSV, XLS e XLSX são aceitas.';
-                errorMsg.style.display = 'block';
-                return;
-            }
-            
             // Update file icon based on type
             const fileIcon = document.querySelector('.file-icon');
+            const extension = file.name.split('.').pop().toLowerCase();
             const iconMap = {
                 'csv': '📊',
                 'xls': '📊',

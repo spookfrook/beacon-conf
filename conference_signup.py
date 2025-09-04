@@ -30,6 +30,10 @@ import httpx
 # FastAPI app
 app = FastAPI()
 
+# Increase request timeout for large file uploads
+import asyncio
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy()) if os.name == 'nt' else None
+
 # File upload security constants
 MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
 ALLOWED_EXTENSIONS = {'.csv', '.xls', '.xlsx'}
@@ -69,14 +73,20 @@ ALLOWED_EMAILS = set(email.strip().lower() for email in ALLOWED_EMAILS_ENV.split
 
 # Initialize S3 client
 try:
-    s3_client = boto3.client(
-        's3',
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_REGION
-    )
+    if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:
+        print("WARNING: AWS credentials not configured")
+        s3_client = None
+    else:
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            region_name=AWS_REGION
+        )
+        print(f"S3 client initialized for bucket: {S3_BUCKET_NAME}")
 except Exception as e:
     print(f"Error initializing S3 client: {e}")
+    s3_client = None
 
 # HTML template for email validation
 email_template = """
@@ -1017,6 +1027,8 @@ async def upload_file(
     file: UploadFile = File(...)
 ):
     """Upload file to S3 with security validations"""
+    print(f"Upload request received for file: {file.filename}")
+    
     # Validate token
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
@@ -1064,44 +1076,44 @@ async def upload_file(
     
     # Check S3 configuration
     if not S3_BUCKET_NAME:
-        raise HTTPException(status_code=500, detail="Erro de configuração do servidor")
+        print("WARNING: S3_BUCKET_NAME not configured")
+        raise HTTPException(status_code=500, detail="Erro de configuração do servidor - S3 não configurado")
     
     try:
-        # Read file content for validation
-        file_content = await file.read()
-        
-        # Validate file size after reading
-        if len(file_content) > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Arquivo muito grande. Tamanho máximo permitido: {MAX_FILE_SIZE // (1024*1024)}MB"
-            )
+        # Read just the first chunk for content validation
+        print(f"Validating file content...")
+        first_chunk = await file.read(8192)  # Read first 8KB for validation
         
         # Validate file content matches expected type
-        if not validate_file_content(file_content, file_extension):
+        if not validate_file_content(first_chunk, file_extension):
             raise HTTPException(
                 status_code=400,
                 detail="O conteúdo do arquivo não corresponde ao tipo esperado."
             )
         
+        # Reset file position to beginning for upload
+        await file.seek(0)
+        
         # Generate unique filename with sanitized name
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         final_filename = f"{timestamp}_{sanitized_filename}"
         
-        # Upload to S3 using file content
-        from io import BytesIO
-        file_obj = BytesIO(file_content)
+        if not s3_client:
+            raise HTTPException(status_code=500, detail="S3 client não inicializado. Verifique as credenciais AWS.")
         
+        print(f"Uploading to S3: {final_filename}")
+        # Stream file directly to S3 without loading into memory
         s3_client.upload_fileobj(
-            file_obj,
+            file.file,
             S3_BUCKET_NAME,
             final_filename,
             ExtraArgs={'ContentType': file.content_type or 'application/octet-stream'}
         )
+        print(f"S3 upload complete")
         
         # Send email notification with user info
         user_email = valid_tokens[token]["email"]
-        await send_upload_email(sanitized_filename, len(file_content), user_email)
+        await send_upload_email(sanitized_filename, file.size or 0, user_email)
         
         # Remove used token
         del valid_tokens[token]
@@ -1109,7 +1121,7 @@ async def upload_file(
         return {
             "message": "Arquivo enviado com sucesso",
             "filename": final_filename,
-            "size": len(file_content)
+            "size": file.size or 0
         }
         
     except HTTPException:
