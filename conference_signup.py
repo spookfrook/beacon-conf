@@ -208,40 +208,32 @@ email_template = """
         
         input[type="email"]:focus {
             outline: none;
-            border-color: #7C3AED;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            border-color: #692494;
+            box-shadow: 0 0 0 3px rgba(105, 36, 148, 0.1);
         }
         
         .submit-btn {
             width: 100%;
             padding: 12px 24px;
-            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            background: #692494;
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
             margin-top: 32px;
         }
         
         .submit-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
+            background: #5a1f7a;
         }
         
         .submit-btn:disabled {
             background: #E5E7EB;
             color: #9CA3AF;
             cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
         }
         
         .error-message {
@@ -588,33 +580,25 @@ upload_template = """
         .submit-btn {
             width: 100%;
             padding: 12px 24px;
-            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            background: #692494;
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             display: none;
-            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);
         }
         
         .submit-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
+            background: #5a1f7a;
         }
         
         .submit-btn:disabled {
             background: #E5E7EB;
             color: #9CA3AF;
             cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
         }
         
         .success-container {
@@ -655,10 +639,10 @@ upload_template = """
         
         .back-btn {
             padding: 12px 24px;
-            background: white;
-            border: 1px solid #E5E7EB;
+            background: #692494;
+            border: none;
             border-radius: 8px;
-            color: #374151;
+            color: white;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
@@ -666,8 +650,7 @@ upload_template = """
         }
         
         .back-btn:hover {
-            background: #F9FAFB;
-            border-color: #D1D5DB;
+            background: #5a1f7a;
         }
         
         .error-message {
@@ -1011,8 +994,8 @@ Se você não solicitou este código, ignore este email.
         .header {{ background: #f8f9fa; border-bottom: 2px solid #e9ecef; padding: 20px; text-align: center; }}
         .content {{ background: white; padding: 20px; border: 1px solid #e9ecef; }}
         .pin-code {{ background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; text-align: center; margin: 15px 0; font-size: 28px; font-weight: bold; color: #212529; letter-spacing: 6px; font-family: monospace; }}
-        .button {{ display: inline-block; background: #6c757d; color: white; padding: 10px 24px; text-decoration: none; border-radius: 4px; margin: 10px 0; font-size: 14px; }}
-        .button:hover {{ background: #5a6268; }}
+        .button {{ display: inline-block; background: #692494; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 10px 0; font-size: 14px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-weight: 500; }}
+        .button:hover {{ background: #5a1f7a; }}
         .footer {{ margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 13px; }}
         h2 {{ margin: 0; font-size: 24px; font-weight: 600; color: #212529; }}
         p {{ margin: 10px 0; }}
