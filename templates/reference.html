@@ -8,43 +8,35 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f9fafb;
+            background-color: white;
+            color: #111827;
         }
         
-        .card {
+        .header-section {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .main-content {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        
-        .card-header {
-            background: #f3f4f6;
-            padding: 16px 24px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .card-body {
-            padding: 24px;
+            padding: 0;
         }
         
         .status-badge {
             display: inline-flex;
             align-items: center;
-            padding: 4px 12px;
-            border-radius: 9999px;
             font-size: 14px;
             font-weight: 500;
         }
         
         .status-completed {
-            background-color: #d1fae5;
             color: #059669;
         }
         
         .status-declined {
-            background-color: #fee2e2;
             color: #dc2626;
         }
         
@@ -58,16 +50,10 @@
         }
         
         .section-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 12px;
+            margin-right: 8px;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            background: #e0e7ff;
-            border-radius: 4px;
-            color: #4f46e5;
-            font-size: 16px;
+            font-size: 20px;
         }
         
         table {
@@ -76,12 +62,11 @@
         }
         
         thead {
-            background-color: #f9fafb;
             border-bottom: 1px solid #e5e7eb;
         }
         
         th {
-            padding: 12px 16px;
+            padding: 12px 0;
             text-align: left;
             font-weight: 600;
             color: #374151;
@@ -89,7 +74,7 @@
         }
         
         td {
-            padding: 12px 16px;
+            padding: 16px 0;
             border-bottom: 1px solid #e5e7eb;
             font-size: 14px;
         }
@@ -97,15 +82,15 @@
         .detail-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 32px;
-            margin-bottom: 20px;
+            gap: 24px;
+            margin-bottom: 24px;
         }
         
         .detail-label {
             font-size: 11px;
             text-transform: uppercase;
             color: #6b7280;
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 4px;
             letter-spacing: 0.05em;
         }
@@ -116,98 +101,111 @@
         }
         
         .summary-box {
-            background: #f9fafb;
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 16px;
+            background: white;
+            padding: 0;
+            margin-top: 16px;
         }
         
-        .cta-box {
-            background: linear-gradient(to right, #fef3c7, #fce7f3);
-            border: 1px solid #fbbf24;
-            border-radius: 8px;
-            padding: 20px;
+        .document-icon {
+            width: 20px;
+            height: 20px;
+            color: #6b7280;
+        }
+        
+        .heading-with-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .section-heading {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .pink-heading {
+            color: #e52685;
+        }
+        
+        .blue-heading {
+            color: #3b82f6;
+        }
+        
+        .green-heading {
+            color: #059669;
+        }
+        
+        .reference-detail-box {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 24px;
             margin-top: 24px;
-            text-align: center;
-        }
-        
-        .cta-button {
-            background-color: #e52685;
-            color: white;
-            padding: 10px 24px;
-            border-radius: 6px;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 12px;
-        }
-        
-        .cta-button:hover {
-            background-color: #d11e76;
         }
     </style>
 </head>
 <body>
     <div class="container mx-auto max-w-4xl p-6">
         <!-- Header -->
-        <div class="card">
-            <div class="card-header">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <h1 class="text-lg font-semibold">Reporte de Verificación de Referencias</h1>
-                    </div>
-                    <span class="info-badge">INFO</span>
+        <div class="header-section">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="document-icon mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h1 class="text-lg font-semibold">Reporte de Verificación de Referencias</h1>
                 </div>
-                <p class="text-sm text-gray-600 mt-2">Mira el reporte que genera Sol después de cada proceso de verificación de referencias</p>
+                <span class="info-badge">INFO</span>
             </div>
+            <p class="text-sm text-gray-600 mt-2">Mira el reporte que genera Sol después de cada proceso de verificación de referencias</p>
         </div>
 
-        <!-- Main Report Card -->
-        <div class="card">
-            <div class="card-header">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                    </svg>
-                    <div>
-                        <h2 class="font-semibold">Reference Check</h2>
-                        <p class="text-sm text-gray-600">Recopilar y verificar referencias profesionales para candidatos</p>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Title with badge -->
+            <div class="heading-with-badge">
+                <div>
+                    <div class="flex items-center mb-1">
+                        <svg class="document-icon mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        </svg>
+                        <h2 class="text-xl font-semibold">Reference Check</h2>
+                        <span class="info-badge ml-2">INFO</span>
                     </div>
+                    <p class="text-sm text-gray-600 ml-7">Recopilar y verificar referencias profesionales para candidatos</p>
                 </div>
             </div>
             
-            <div class="card-body">
+            <div>
                 <!-- Status Info -->
-                <div class="grid grid-cols-3 gap-4 mb-6 text-sm">
+                <div class="grid grid-cols-3 gap-8 mb-8 text-sm">
                     <div>
-                        <div class="detail-label">Estado</div>
+                        <div class="detail-label">ESTADO</div>
                         <div class="detail-value font-medium">COMPLETADO</div>
                     </div>
                     <div>
-                        <div class="detail-label">Creado</div>
+                        <div class="detail-label">CREADO</div>
                         <div class="detail-value">15 de nov. de 2025, 2:45 PM</div>
                     </div>
                     <div>
-                        <div class="detail-label">Actualizado</div>
+                        <div class="detail-label">ACTUALIZADO</div>
                         <div class="detail-value">17 de nov. de 2025, 4:12 PM</div>
                     </div>
                 </div>
                 
-                <p class="text-gray-700 mb-6">El proceso de verificación de referencias está completado.</p>
+                <p class="text-gray-700 mb-8">El proceso de verificación de referencias está completado.</p>
 
                 <!-- Verification Summary -->
                 <div class="mb-8">
-                    <div class="flex items-center mb-4">
-                        <div class="section-icon">📊</div>
-                        <h3 class="text-lg font-semibold text-blue-600">Resumen de verificaciones</h3>
-                    </div>
+                    <h3 class="section-heading blue-heading">
+                        <span class="section-icon">📊</span>
+                        Resumen de verificaciones
+                    </h3>
                     
-                    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="bg-white">
                         <table>
                             <thead>
                                 <tr>
@@ -220,21 +218,21 @@
                             <tbody>
                                 <tr>
                                     <td class="font-medium">Donald Duck</td>
-                                    <td class="text-gray-600">+51987654321</td>
+                                    <td>+51987654321</td>
                                     <td><span class="status-badge status-completed">✅ completado</span></td>
-                                    <td class="text-gray-600">4:32</td>
+                                    <td>4:32</td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium">Minnie Mouse</td>
-                                    <td class="text-gray-600">+51912345678</td>
+                                    <td>+51912345678</td>
                                     <td><span class="status-badge status-completed">✅ completado</span></td>
-                                    <td class="text-gray-600">3:18</td>
+                                    <td>3:18</td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium">Goofy</td>
-                                    <td class="text-gray-600">+51998877665</td>
+                                    <td>+51998877665</td>
                                     <td><span class="status-badge status-declined">❌ declinó</span></td>
-                                    <td class="text-gray-600">-</td>
+                                    <td>-</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -242,26 +240,26 @@
                 </div>
 
                 <!-- Reference Details -->
-                <div class="mb-8">
-                    <div class="flex items-center mb-4">
-                        <div class="section-icon" style="background: #fce7f3; color: #ec4899;">📋</div>
-                        <h3 class="text-lg font-semibold" style="color: #e52685;">Detalles de referencias</h3>
-                    </div>
+                <div class="reference-detail-box">
+                    <h3 class="section-heading pink-heading">
+                        <span class="section-icon">📋</span>
+                        Detalles de referencias
+                    </h3>
                     
                     <!-- Donald Duck Details -->
-                    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-4">
-                        <div class="flex items-center justify-between mb-4">
-                            <h4 class="text-lg font-semibold">Donald Duck</h4>
-                            <span class="text-green-600 font-medium">completado</span>
+                    <div class="bg-white mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-xl font-semibold">Donald Duck</h4>
+                            <span class="text-green-600 text-sm">completado</span>
                         </div>
                         
                         <div class="detail-grid">
-                            <div class="space-y-4">
-                                <div>
+                            <div>
+                                <div class="mb-4">
                                     <div class="detail-label">TELÉFONO</div>
                                     <div class="detail-value">+51987654321</div>
                                 </div>
-                                <div>
+                                <div class="mb-4">
                                     <div class="detail-label">FECHA DE CONTACTO WHATSAPP</div>
                                     <div class="detail-value">15 de nov. de 2025, 2:50 PM</div>
                                 </div>
@@ -270,12 +268,12 @@
                                     <div class="detail-value">1</div>
                                 </div>
                             </div>
-                            <div class="space-y-4">
-                                <div>
+                            <div>
+                                <div class="mb-4">
                                     <div class="detail-label">RELACIÓN</div>
                                     <div class="detail-value">Supervisor</div>
                                 </div>
-                                <div>
+                                <div class="mb-4">
                                     <div class="detail-label">FECHA DE LLAMADA</div>
                                     <div class="detail-value">16 de nov. de 2025, 10:30 AM</div>
                                 </div>
@@ -287,40 +285,19 @@
                         </div>
 
                         <!-- Summary -->
-                        <div class="mt-6">
-                            <div class="flex items-center mb-3">
-                                <div class="section-icon" style="background: #d1fae5; color: #059669;">🤖</div>
-                                <h5 class="font-semibold text-green-600">Resumen</h5>
-                            </div>
+                        <div class="mt-8">
+                            <h5 class="section-heading green-heading" style="font-size: 18px; margin-bottom: 16px;">
+                                <span class="section-icon">🤖</span>
+                                Resumen
+                            </h5>
                             
                             <div class="summary-box">
-                                <p class="font-semibold mb-3">Mickey Mouse demuestra excelente liderazgo y adaptación excepcional al trabajo en equipo.</p>
-                                
-                                <div class="space-y-2 text-sm">
-                                    <div><span class="font-semibold text-green-700">Empresa y cargo:</span> Disney Studios, Director de Animación</div>
-                                    <div><span class="font-semibold text-green-700">Fechas de empleo:</span> enero de 2023 a octubre de 2025</div>
-                                    <div><span class="font-semibold text-green-700">Fortalezas:</span> Liderazgo natural, puntualidad excepcional, resolución creativa de problemas, mentoría de equipo</div>
-                                    <div><span class="font-semibold text-green-700">Habilidades interpersonales:</span> Comunicación excelente, perfil colaborativo, manejo efectivo de conflictos</div>
-                                    <div><span class="font-semibold text-green-700">Áreas de mejora:</span> Ninguna área significativa identificada, ocasionalmente perfeccionista</div>
-                                    <div><span class="font-semibold text-green-700">Razón de salida:</span> Búsqueda de nuevos desafíos profesionales y crecimiento de carrera</div>
-                                    <div><span class="font-semibold text-green-700">Recontratación:</span> <span class="text-green-600 font-semibold">Sí, sin dudas. Fue uno de nuestros mejores talentos</span></div>
-                                </div>
-                                
-                                <div class="mt-3 pt-3 border-t border-gray-200">
-                                    <p class="text-blue-700 font-medium italic">La referencia habló muy positivamente sobre Mickey Mouse.</p>
-                                </div>
+                                <p class="font-semibold mb-4 text-base">Mickey Mouse demuestra excelente liderazgo y adaptación excepcional al trabajo en equipo.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- CTA Box -->
-        <div class="cta-box">
-            <h4 class="text-lg font-semibold mb-2">Todo tu proceso de verificación de referencias automatizado con Sol</h4>
-            <p class="text-sm text-gray-600">Desde el contacto de WhatsApp y voz con candidatos y referencias hasta el reporte final de cada conversación.</p>
-            <button class="cta-button">🚀 Probar Sol ahora</button>
         </div>
     </div>
 </body>
