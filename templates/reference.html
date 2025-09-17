@@ -145,6 +145,34 @@
             padding-top: 24px;
             margin-top: 24px;
         }
+        
+        .conversation-bubble {
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-left: 48px;
+        }
+        
+        .recording-section {
+            background: #fef3c7;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .play-button {
+            display: flex;
+            align-items: center;
+            color: #dc2626;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .play-button:hover {
+            color: #b91c1c;
+        }
     </style>
 </head>
 <body>
@@ -293,11 +321,234 @@
                             
                             <div class="summary-box">
                                 <p class="font-semibold mb-4 text-base">Mickey Mouse demuestra excelente liderazgo y adaptación excepcional al trabajo en equipo.</p>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <span class="font-semibold text-green-700">Empresa y cargo:</span> Disney Studios, Director de Animación
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Fechas de empleo:</span> enero de 2023 a octubre de 2025
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Fortalezas:</span> Liderazgo natural, puntualidad excepcional, resolución creativa de problemas, mentoría de equipo
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Habilidades interpersonales:</span> Comunicación excelente, perfil colaborativo, manejo efectivo de conflictos
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Áreas de mejora:</span> Ninguna área significativa identificada, ocasionalmente perfeccionista
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Razón de salida:</span> Búsqueda de nuevos desafíos profesionales y crecimiento de carrera
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Recontratación:</span> <span class="text-green-700 font-semibold">Sí, sin dudas. Fue uno de nuestros mejores talentos</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6 pt-6 border-l-4 border-blue-400 pl-4">
+                                    <p class="text-blue-700 font-medium italic">La referencia habló muy positivamente sobre Mickey Mouse.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Call Recording Section -->
+                        <div class="mt-8 bg-orange-50 p-6 rounded-lg">
+                            <h5 class="section-heading" style="font-size: 18px; margin-bottom: 16px; color: #ea580c;">
+                                <span class="section-icon">🎵</span>
+                                Grabación de llamada
+                            </h5>
+                            <button class="flex items-center text-red-600 font-medium hover:text-red-700">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                                </svg>
+                                Reproducir
+                            </button>
+                        </div>
+                        
+                        <!-- Complete Conversation Section -->
+                        <div class="mt-8">
+                            <h5 class="section-heading" style="font-size: 18px; margin-bottom: 16px; color: #7c3aed;">
+                                <span class="section-icon">📝</span>
+                                Conversación completa
+                            </h5>
+                            
+                            <div class="space-y-6">
+                                <!-- Sol message -->
+                                <div class="flex gap-3">
+                                    <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                                        <span>🤖</span> Sol
+                                    </div>
+                                </div>
+                                <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded-r-lg ml-12">
+                                    <p class="text-gray-700">Hola Donald Duck, soy Sol, el asistente virtual de Emptor, y me encargo de realizar las verificaciones de referencias. Me comunico contigo porque Mickey Mouse te ha listado como referencia profesional. ¿Cómo estás?</p>
+                                </div>
+                                
+                                <!-- Reference message -->
+                                <div class="flex gap-3">
+                                    <div class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                                        <span>👤</span> Referencia
+                                    </div>
+                                </div>
+                                <div class="bg-pink-50 border-l-4 border-pink-400 p-4 rounded-r-lg ml-12">
+                                    <p class="text-gray-700">Hola Sol, todo bien, gracias. ¿De qué se trata exactamente?</p>
+                                </div>
+                                
+                                <!-- Sol message 2 -->
+                                <div class="flex gap-3">
+                                    <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                                        <span>🤖</span> Sol
+                                    </div>
+                                </div>
+                                <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded-r-lg ml-12">
+                                    <p class="text-gray-700">Donald, esta llamada tomará algunos minutos. ¿Es un buen momento para compartir tu experiencia trabajando con Mickey?</p>
+                                </div>
+                                
+                                <!-- Reference message 2 -->
+                                <div class="flex gap-3">
+                                    <div class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                                        <span>👤</span> Referencia
+                                    </div>
+                                </div>
+                                <div class="bg-pink-50 border-l-4 border-pink-400 p-4 rounded-r-lg ml-12">
+                                    <p class="text-gray-700">Sí, claro. Tengo tiempo ahora.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Minnie Mouse Details -->
+                    <div class="bg-white mb-8 border-t pt-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-xl font-semibold">Minnie Mouse</h4>
+                            <span class="text-green-600 text-sm">completado</span>
+                        </div>
+                        
+                        <div class="detail-grid">
+                            <div>
+                                <div class="mb-4">
+                                    <div class="detail-label">TELÉFONO</div>
+                                    <div class="detail-value">+51912345678</div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="detail-label">FECHA DE CONTACTO WHATSAPP</div>
+                                    <div class="detail-value">15 de nov. de 2025, 3:20 PM</div>
+                                </div>
+                                <div>
+                                    <div class="detail-label">INTENTOS DE LLAMADA</div>
+                                    <div class="detail-value">1</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="mb-4">
+                                    <div class="detail-label">RELACIÓN</div>
+                                    <div class="detail-value">Compañera</div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="detail-label">FECHA DE LLAMADA</div>
+                                    <div class="detail-value">16 de nov. de 2025, 2:15 PM</div>
+                                </div>
+                                <div>
+                                    <div class="detail-label">DURACIÓN DE LLAMADA</div>
+                                    <div class="detail-value">3:18</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="mt-8">
+                            <h5 class="section-heading green-heading" style="font-size: 18px; margin-bottom: 16px;">
+                                <span class="section-icon">🤖</span>
+                                Resumen
+                            </h5>
+                            
+                            <div class="summary-box">
+                                <p class="font-semibold mb-4 text-base">Mickey Mouse muestra excelente colaboración y espíritu de equipo sobresaliente.</p>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <span class="font-semibold text-green-700">Empresa y cargo:</span> Disney Creative, Especialista en Desarrollo Creativo
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Fechas de empleo:</span> enero de 2023 a octubre de 2025
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Fortalezas:</span> Colaboración excepcional, creatividad, comunicación efectiva, confiabilidad
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Habilidades interpersonales:</span> Comunicación fluida, perfil colaborativo, excelente manejo de relaciones
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Áreas de mejora:</span> Mayor asertividad en presentaciones, confianza en decisiones independientes
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Razón de salida:</span> Oportunidad de crecimiento en nueva empresa
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-green-700">Recontratación:</span> <span class="text-green-700 font-semibold">Absolutamente sí, sería bienvenido de vuelta en cualquier momento</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6 pt-6 border-l-4 border-blue-400 pl-4">
+                                    <p class="text-blue-700 font-medium italic">La referencia habló extremadamente positivo sobre Mickey Mouse.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Call Recording Section -->
+                        <div class="mt-8 bg-orange-50 p-6 rounded-lg">
+                            <h5 class="section-heading" style="font-size: 18px; margin-bottom: 16px; color: #ea580c;">
+                                <span class="section-icon">🎵</span>
+                                Grabación de llamada
+                            </h5>
+                            <button class="flex items-center text-red-600 font-medium hover:text-red-700">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                                </svg>
+                                Reproducir
+                            </button>
+                        </div>
+                        
+                        <!-- Complete Conversation Section -->
+                        <div class="mt-8">
+                            <h5 class="section-heading" style="font-size: 18px; margin-bottom: 16px; color: #7c3aed;">
+                                <span class="section-icon">📝</span>
+                                Conversación completa
+                            </h5>
+                            
+                            <div class="space-y-6">
+                                <!-- Sol message -->
+                                <div class="flex gap-3">
+                                    <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                                        <span>🤖</span> Sol
+                                    </div>
+                                </div>
+                                <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded-r-lg ml-12">
+                                    <p class="text-gray-700">Hola Minnie Mouse, soy Sol, el asistente virtual de Emptor, y me encargo de realizar las verificaciones de referencias. Me comunico contigo porque Mickey Mouse te ha listado como referencia profesional. ¿Cómo estás?</p>
+                                </div>
+                                
+                                <!-- Reference message -->
+                                <div class="flex gap-3">
+                                    <div class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                                        <span>👤</span> Referencia
+                                    </div>
+                                </div>
+                                <div class="bg-pink-50 border-l-4 border-pink-400 p-4 rounded-r-lg ml-12">
+                                    <p class="text-gray-700">¡Hola Sol! Todo bien, gracias. ¿Mickey pidió referencias?</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- CTA Box -->
+        <div class="bg-gradient-to-r from-yellow-50 to-pink-50 border border-yellow-400 rounded-lg p-6 mt-8 text-center">
+            <h4 class="text-lg font-semibold mb-2">Todo tu proceso de verificación de referencias automatizado con Sol</h4>
+            <p class="text-sm text-gray-600">Desde el contacto de WhatsApp y voz con candidatos y referencias hasta el reporte final de cada conversación.</p>
+            <button class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg font-medium mt-4 w-full">
+                🚀 Probar Sol ahora
+            </button>
         </div>
     </div>
 </body>
