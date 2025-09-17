@@ -47,6 +47,15 @@
             right: 0;
         }
         
+        .tap-zone-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            right: 25%;
+            height: 20%;
+            z-index: 10;
+        }
+        
         video {
             width: 100%;
             height: 100%;
@@ -70,7 +79,8 @@
     <div class="video-container" id="videoContainer">
         <div class="tap-zone tap-zone-left" id="leftZone"></div>
         <div class="tap-zone tap-zone-right" id="rightZone"></div>
-        <video id="videoPlayer" autoplay muted></video>
+        <div class="tap-zone tap-zone-bottom" id="bottomZone"></div>
+        <video id="videoPlayer" autoplay></video>
         <div class="loading" id="loading">Loading...</div>
     </div>
     
@@ -89,6 +99,7 @@
         const loading = document.getElementById('loading');
         const leftZone = document.getElementById('leftZone');
         const rightZone = document.getElementById('rightZone');
+        const bottomZone = document.getElementById('bottomZone');
         
         function loadVideo(index) {
             loading.style.display = 'block';
@@ -140,6 +151,12 @@
             playNextVideo();
         });
         
+        // Handle bottom zone tap - open main page in new tab
+        bottomZone.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.open('/', '_blank');
+        });
+        
         // Prevent context menu on long press (for touchscreens)
         videoContainer.addEventListener('contextmenu', (e) => {
             e.preventDefault();
@@ -178,6 +195,7 @@
         
         leftZone.addEventListener('click', attemptFullscreen, { once: true });
         rightZone.addEventListener('click', attemptFullscreen, { once: true });
+        bottomZone.addEventListener('click', attemptFullscreen, { once: true });
     </script>
 </body>
 </html>
