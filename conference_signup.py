@@ -775,6 +775,10 @@ async def index(request: Request):
 async def video(request: Request):
     return templates.TemplateResponse("video.html", {"request": request})
 
+@app.get("/reference", response_class=HTMLResponse)
+async def reference(request: Request):
+    return templates.TemplateResponse("reference.html", {"request": request})
+
 @app.get("/voice/{signup_id}")
 async def get_voice_memo(signup_id: str, token: str):
     """Serve voice memo with 24-hour expiration check"""

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reference Check - Sol by Emptor</title>
+    <style>
+  :root{
+    --brand:#e52685;
+    --blue-25:#f0f6ff; --blue-50:#eff6ff; --blue-100:#dbeafe; --blue-300:#93c5fd; --blue-600:#2563eb;
+    --green-25:#f1faf3; --green-100:#d1fae5; --green-600:#16a34a;
+    --pink-25:#fff5fa; --pink-100:#ffe0ef; --pink-600:#e52685;
+    --purple-25:#f7f2ff; --purple-100:#eadfff; --purple-600:#7c3aed;
+    --orange-25:#fff6ed; --orange-100:#ffe4cc; --orange-600:#ea580c;
+    --shadow-lg:0 10px 30px rgba(2,8,23,.10),0 4px 12px rgba(2,8,23,.06);
+    --shadow-sm:0 3px 12px rgba(2,8,23,.07),0 1px 4px rgba(2,8,23,.05);
+  }
+  body{font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Inter,Helvetica,Arial,sans-serif;color:#111827}
+  /* section skins */
+  [data-id="verification-table"]{background:linear-gradient(180deg,var(--blue-50),var(--blue-25));border:1px solid var(--blue-100);box-shadow:var(--shadow-lg)}
+  [data-id="reference-details"]{background:linear-gradient(180deg,var(--pink-25),#ffe9f4);border:1px solid var(--pink-100);box-shadow:var(--shadow-lg)}
+  [data-id="summary"]{background:linear-gradient(180deg,var(--green-25),#eaf7ee);border:1px solid var(--green-100);box-shadow:var(--shadow-sm)}
+  [data-id="recording"]{background:linear-gradient(180deg,var(--orange-25),#fff1e5);border:1px solid var(--orange-100);box-shadow:var(--shadow-sm)}
+  [data-id="transcript"]{background:linear-gradient(180deg,var(--purple-25),#f4efff);border:1px solid var(--purple-100);box-shadow:var(--shadow-lg)}
+  /* tables */
+  table{border-collapse:separate;border-spacing:0;width:100%}
+  thead th{background:rgba(37,99,235,.06);border-bottom:1px solid var(--blue-100)}
+  tbody td{border-bottom:1px solid rgba(148,163,184,.2)}
+  tbody tr:hover{background:rgba(37,99,235,.03)}
+  tbody td, thead th{padding:.75rem 1rem}
+  /* status chips in table */
+  tbody td span{display:inline-flex;align-items:center;gap:.4rem;padding:.15rem .5rem;border-radius:999px;font-weight:600}
+  /* labels + chat bubbles */
+  .inline-flex.bg-blue-50.text-blue-700{border:1px solid var(--blue-300);background:linear-gradient(#f5f9ff,#edf4ff);font-weight:600}
+  .inline-flex.bg-pink-50.text-pink-700{border:1px solid #f9a8d4;background:linear-gradient(#fff7fb,#ffeff6);font-weight:600}
+  .space-y-2 .bg-blue-50.text-blue-700 + div{border-left:4px solid var(--blue-300);background:#f8fafc;box-shadow:var(--shadow-sm)}
+  .space-y-2 .bg-pink-50.text-pink-700 + div{border-left:4px solid #f9a8d4;background:#fff1f7;box-shadow:var(--shadow-sm)}
+  /* headers */
+  h4,h5{letter-spacing:.2px}
+  /* tooltip system */
+  .tooltip{position:relative;display:inline-flex;align-items:center}
+  .tooltip .icon-btn{font-size:1.35rem;line-height:1;border:0;background:transparent;cursor:help}
+  .tooltip .tooltip-panel{position:absolute;top:100%;left:0;z-index:60;min-width:20rem;max-width:34rem;padding:1rem 1.1rem;background:#fff;border:1px solid rgba(2,8,23,.08);border-radius:14px;box-shadow:var(--shadow-lg);transform:translateY(10px);opacity:0;visibility:hidden;transition:all .16s ease}
+  .tooltip:hover .tooltip-panel{opacity:1;visibility:visible;transform:translateY(8px)}
+  .tooltip .tooltip-panel::before{content:'';position:absolute;left:18px;top:-10px;border-width:10px 10px 0 10px;border-style:solid;border-color:rgba(2,8,23,.08) transparent transparent transparent}
+  .tooltip .tooltip-panel::after{content:'';position:absolute;left:18px;top:-9px;border-width:10px 10px 0 10px;border-style:solid;border-color:#fff transparent transparent transparent}
+  .tooltip-title{font-weight:700;font-size:1rem;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem}
+  .tooltip-green{border-left:4px solid var(--green-600)}
+  .tooltip-purple{border-left:4px solid var(--purple-600)}
+</style>
+</head>
+<body>
+<div class="p-4 overflow-y-auto max-h-[calc(85vh-80px)]" style="scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: rgb(229, 231, 235) rgb(243, 244, 246);"><div class="bg-white border-2 border-gray-300 rounded-lg shadow-lg max-w-3xl mx-auto"><div class="bg-blue-50 border-b border-blue-200 p-3"><div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder h-4 w-4 text-gray-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span class="font-semibold text-gray-900 text-sm">Reference Check</span><span class="text-gray-600 text-xs">Recopilar y verificar referencias profesionales para candidatos</span></div> <span class="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 rounded-md bg-blue-400 text-white text-xs px-2 py-1 h-5">
+            INFO
+          </span></div> <div class="grid grid-cols-3 gap-4 text-xs"><div><div class="text-gray-500 text-xs">
+              Estado
+            </div> <div class="font-medium text-gray-900">
+              COMPLETADO
+            </div></div> <div><div class="text-gray-500 text-xs">
+              Creado
+            </div> <div class="font-medium text-gray-900">
+              15 de nov. de 2025, 2:45 PM
+            </div></div> <div><div class="text-gray-500 text-xs">
+              Actualizado
+            </div> <div class="font-medium text-gray-900">
+              17 de nov. de 2025, 4:12 PM
+            </div></div></div></div> <div class="p-4"><p class="text-gray-700 mb-6 text-sm">
+          El proceso de verificación de referencias está completado.
+        </p> <div data-id="verification-table" class="bg-blue-50 rounded-xl px-6 py-4 shadow-sm relative transition-all duration-200 hover:shadow-md mn-6"><div class="flex items-center gap-3 mb-4"><button title="Ver cómo Sol organiza automáticamente" type="button" class="text-2xl hover:scale-110 transition-transform cursor-pointer">
+              📊
+            </button> <h4 class="font-bold text-blue-600 text-base">
+              Resumen de verificaciones
+            </h4></div> <div class="bg-white rounded-lg overflow-hidden shadow-sm"><table class="w-full text-sm"><thead class="bg-blue-50"><tr><th class="px-4 py-3 text-left text-sm font-semibold text-blue-700">
+                    Nombre
+                  </th> <th class="px-4 py-3 text-left text-sm font-semibold text-blue-700">
+                    Teléfono
+                  </th> <th class="px-4 py-3 text-left text-sm font-semibold text-blue-700">
+                    Estado
+                  </th> <th class="px-4 py-3 text-left text-sm font-semibold text-blue-700">
+                    Duración
+                  </th></tr></thead> <tbody class="divide-y divide-blue-100"><tr class="hover:bg-blue-25 transition-colors"><td class="px-4 py-3 text-sm font-medium text-gray-900">
+                    Donald Duck
+                  </td> <td class="px-4 py-3 text-sm text-gray-600">
+                    +51987654321
+                  </td> <td class="px-4 py-3"><span class="text-green-600 text-sm font-medium">✅
+                      completado</span></td> <td class="px-4 py-3 text-sm text-gray-600">4:32</td></tr> <tr class="hover:bg-blue-25 transition-colors"><td class="px-4 py-3 text-sm font-medium text-gray-900">
+                    Minnie Mouse
+                  </td> <td class="px-4 py-3 text-sm text-gray-600">
+                    +51912345678
+                  </td> <td class="px-4 py-3"><span class="text-green-600 text-sm font-medium">✅
+                      completado</span></td> <td class="px-4 py-3 text-sm text-gray-600">3:18</td></tr> <tr class="hover:bg-blue-25 transition-colors"><td class="px-4 py-3 text-sm font-medium text-gray-900">
+                    Goofy
+                  </td> <td class="px-4 py-3 text-sm text-gray-600">
+                    +51998877665
+                  </td> <td class="px-4 py-3"><span class="text-red-600 text-sm font-medium">❌
+                      declinó</span></td> <td class="px-4 py-3 text-sm text-gray-600">-</td></tr></tbody></table></div></div> <div data-id="reference-details" class="bg-pink-50 rounded-xl px-6 py-4 shadow-sm relative transition-all duration-200 hover:shadow-md mb-6"><div class="flex items-center gap-3 mb-4"><span class="text-2xl">📋</span> <h4 class="font-bold text-pink-600 text-base" style="color: rgb(229, 38, 133);">
+              Detalles de referencias
+            </h4></div> <div class="space-y-6"><div class="bg-white rounded-lg p-4 shadow-sm"><div class="flex items-center justify-between mb-4"><h5 class="text-lg font-semibold text-gray-900">
+                  Donald Duck
+                </h5> <span class="text-green-600 font-medium text-sm">completado</span></div> <div class="grid grid-cols-2 gap-8 mb-6"><div class="space-y-4"><div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Teléfono
+                    </div> <div class="text-gray-900 text-sm">+51987654321</div></div> <div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Fecha de contacto WhatsApp
+                    </div> <div class="text-gray-900 text-sm">
+                      15 de nov. de 2025, 2:50 PM
+                    </div></div> <div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Intentos de llamada
+                    </div> <div class="text-gray-900 text-sm">1</div></div></div> <div class="space-y-4"><div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Relación
+                    </div> <div class="text-gray-900 text-sm">
+                      Supervisor
+                    </div></div> <div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Fecha de llamada
+                    </div> <div class="text-gray-900 text-sm">
+                      16 de nov. de 2025, 10:30 AM
+                    </div></div> <div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Duración de llamada
+                    </div> <div class="text-gray-900 text-sm">4:32</div></div></div></div> <div data-id="summary" class="bg-green-50 rounded-xl px-6 py-4 shadow-sm relative transition-all duration-200 hover:shadow-md mb-6"><div class="flex items-center gap-3 mb-4"><div class="tooltip"><button title="Ver cómo Sol analiza con IA" type="button" class="icon-btn">🤖</button><div class="tooltip-panel tooltip-green"><div class="tooltip-title">🤖 análisis con ia</div><div class="text-sm text-gray-600">sol extrae automáticamente insights clave de cada conversación: fortalezas, áreas de mejora, y evaluación general del candidato.</div></div></div> <h5 class="font-bold text-green-600 text-base">Resumen</h5></div> <div class="space-y-4 text-sm"><div class="font-semibold text-gray-900 text-sm leading-relaxed bg-white p-3 rounded-lg shadow-sm">
+                    Mickey Mouse demuestra excelente liderazgo y adaptación excepcional al trabajo en equipo.
+                  </div> <div class="bg-white p-3 rounded-lg shadow-sm space-y-3"><div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Empresa y cargo:</span>
+                      Disney Studios, Director de Animación
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Fechas de empleo:</span>
+                      enero de 2023 a octubre de 2025
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Fortalezas:</span>
+                      Liderazgo natural, puntualidad excepcional, resolución creativa de problemas, mentoría de equipo
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Habilidades interpersonales:</span>
+                      Comunicación excelente, perfil colaborativo, manejo efectivo de conflictos
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Áreas de mejora:</span>
+                      Ninguna área significativa identificada, ocasionalmente perfeccionista
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Áreas de mejora:</span>
+                      Búsqueda de nuevos desafíos profesionales y crecimiento de carrera
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Recontratación:</span> <span class="text-green-600 font-semibold">Sí, sin dudas. Fue uno de nuestros mejores talentos</span></div> <div class="border-l-4 border-blue-400 pl-4 py-3 bg-blue-50 rounded-r-lg"><div class="text-blue-700 font-semibold italic text-sm">
+                        La referencia habló muy positivamente sobre Mickey Mouse.
+                      </div></div></div></div></div> <div data-id="recording" class="bg-orange-50 rounded-xl px-6 py-4 shadow-sm relative transition-all duration-200 hover:shadow-md mb-6"><div class="flex items-center gap-3 mb-3"><span class="text-2xl">🎵</span> <h5 class="font-bold text-orange-600 text-base">
+                    Grabación de llamada
+                  </h5></div> <button type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-orange-700 hover:text-orange-900 hover:bg-orange-100 px-4 py-2 h-auto text-sm font-medium bg-white rounded-full shadow-sm transition-colors"><!--fragment#466a1e8c7f#head--><svg fragment="466a1e8c7f" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play h-4 w-4 mr-2"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    Reproducir
+                  <!--fragment#466a1e8c7f#tail--></button></div> <div data-id="transcript" class="bg-purple-50 rounded-xl px-6 py-4 shadow-sm relative transition-all duration-200 hover:shadow-md"><div class="flex items-center gap-3 mb-4"><div class="tooltip"><button title="Ver cómo Sol documenta todo" type="button" class="icon-btn">📝</button><div class="tooltip-panel tooltip-purple"><div class="tooltip-title">📝 todo documentado</div><div class="text-sm text-gray-600">sol guarda automáticamente la transcripción completa de cada conversación para referencia futura y auditoría.</div></div></div> <h5 class="font-bold text-purple-600 text-base">Conversación completa</h5></div> <div class="bg-white rounded-lg p-4 shadow-sm"><div class="space-y-4"><div class="space-y-2"><div class="inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-sm px-3 py-1 font-medium rounded-full bg-blue-50 text-blue-700 border-blue-300">
+                        🤖 Sol
+                      </div> <div class="text-sm text-gray-700 ml-2 p-4 bg-gray-50 rounded-lg border-l-4 border-purple-300 leading-relaxed">
+                        Hola Donald Duck, soy Sol, el asistente virtual de Emptor, y me encargo de realizar las verificaciones de referencias. Me comunico contigo porque Mickey Mouse te ha listado como referencia profesional. ¿Cómo estás?
+                      </div></div> <div class="space-y-2"><div class="inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-sm px-3 py-1 font-medium rounded-full bg-pink-50 text-pink-700 border-pink-300">
+                        👤 Referencia
+                      </div> <div class="text-sm text-gray-700 ml-2 p-4 bg-gray-50 rounded-lg border-l-4 border-purple-300 leading-relaxed">
+                        Hola Sol, todo bien, gracias. ¿De qué se trata exactamente?
+                      </div></div> <div class="space-y-2"><div class="inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-sm px-3 py-1 font-medium rounded-full bg-blue-50 text-blue-700 border-blue-300">
+                        🤖 Sol
+                      </div> <div class="text-sm text-gray-700 ml-2 p-4 bg-gray-50 rounded-lg border-l-4 border-purple-300 leading-relaxed">
+                        Donald, esta llamada tomará algunos minutos. ¿Es un buen momento para compartir tu experiencia trabajando con Mickey?
+                      </div></div> <div class="space-y-2"><div class="inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-sm px-3 py-1 font-medium rounded-full bg-pink-50 text-pink-700 border-pink-300">
+                        👤 Referencia
+                      </div> <div class="text-sm text-gray-700 ml-2 p-4 bg-gray-50 rounded-lg border-l-4 border-purple-300 leading-relaxed">
+                        Sí, claro. Tengo tiempo ahora.
+                      </div></div></div></div></div></div> <div class="bg-white rounded-lg p-4 shadow-sm"><div class="flex items-center justify-between mb-4"><h5 class="text-lg font-semibold text-gray-900">
+                  Minnie Mouse
+                </h5> <span class="text-green-600 font-medium text-sm">completado</span></div> <div class="grid grid-cols-2 gap-8 mb-6"><div class="space-y-4"><div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Teléfono
+                    </div> <div class="text-gray-900 text-sm">+51912345678</div></div> <div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Fecha de contacto WhatsApp
+                    </div> <div class="text-gray-900 text-sm">
+                      15 de nov. de 2025, 3:20 PM
+                    </div></div> <div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Intentos de llamada
+                    </div> <div class="text-gray-900 text-sm">1</div></div></div> <div class="space-y-4"><div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Relación
+                    </div> <div class="text-gray-900 text-sm">
+                      Compañera
+                    </div></div> <div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Fecha de llamada
+                    </div> <div class="text-gray-900 text-sm">
+                      16 de nov. de 2025, 2:15 PM
+                    </div></div> <div><div class="text-gray-500 font-medium text-xs uppercase tracking-wide mb-1">
+                      Duración de llamada
+                    </div> <div class="text-gray-900 text-sm">3:18</div></div></div></div> <div data-id="summary" class="bg-green-50 rounded-xl px-6 py-4 shadow-sm relative transition-all duration-200 hover:shadow-md mb-6"><div class="flex items-center gap-3 mb-4"><div class="tooltip"><button title="Ver cómo Sol analiza con IA" type="button" class="icon-btn">🤖</button><div class="tooltip-panel tooltip-green"><div class="tooltip-title">🤖 análisis con ia</div><div class="text-sm text-gray-600">sol extrae automáticamente insights clave de cada conversación: fortalezas, áreas de mejora, y evaluación general del candidato.</div></div></div> <h5 class="font-bold text-green-600 text-base">Resumen</h5></div> <div class="space-y-4 text-sm"><div class="font-semibold text-gray-900 text-sm leading-relaxed bg-white p-3 rounded-lg shadow-sm">
+                    Mickey Mouse muestra excelente colaboración y espíritu de equipo sobresaliente.
+                  </div> <div class="bg-white p-3 rounded-lg shadow-sm space-y-3"><div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Empresa y cargo:</span>
+                      Disney Creative, Especialista en Desarrollo Creativo
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Fechas de empleo:</span>
+                      enero de 2023 a octubre de 2025
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Fortalezas:</span>
+                      Colaboración excepcional, creatividad, comunicación efectiva, confiabilidad
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Habilidades interpersonales:</span>
+                      Comunicación fluida, perfil colaborativo, excelente manejo de relaciones
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Áreas de mejora:</span>
+                      Mayor asertividad en presentaciones, confianza en decisiones independientes
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Áreas de mejora:</span>
+                      Oportunidad de crecimiento en nueva empresa
+                    </div> <div class="text-gray-700 text-sm"><span class="font-semibold text-green-700">Recontratación:</span> <span class="text-green-600 font-semibold">Absolutamente sí, sería bienvenido de vuelta en cualquier momento</span></div> <div class="border-l-4 border-blue-400 pl-4 py-3 bg-blue-50 rounded-r-lg"><div class="text-blue-700 font-semibold italic text-sm">
+                        La referencia habló extremadamente positivo sobre Mickey Mouse.
+                      </div></div></div></div></div> <div class="bg-orange-50 rounded-xl px-6 py-4 shadow-sm relative transition-all duration-200 hover:shadow-md mb-6"><div class="flex items-center gap-3 mb-3"><span class="text-2xl">🎵</span> <h5 class="font-bold text-orange-600 text-base">
+                    Grabación de llamada
+                  </h5></div> <button type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-orange-700 hover:text-orange-900 hover:bg-orange-100 px-4 py-2 h-auto text-sm font-medium bg-white rounded-full shadow-sm transition-colors"><!--fragment#bc78e2d97e#head--><svg fragment="bc78e2d97e" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play h-4 w-4 mr-2"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    Reproducir
+                  <!--fragment#bc78e2d97e#tail--></button></div> <div data-id="transcript" class="bg-purple-50 rounded-xl px-6 py-4 shadow-sm relative transition-all duration-200 hover:shadow-md"><div class="flex items-center gap-3 mb-4"><div class="tooltip"><button title="Ver cómo Sol documenta todo" type="button" class="icon-btn">📝</button><div class="tooltip-panel tooltip-purple"><div class="tooltip-title">📝 todo documentado</div><div class="text-sm text-gray-600">sol guarda automáticamente la transcripción completa de cada conversación para referencia futura y auditoría.</div></div></div> <h5 class="font-bold text-purple-600 text-base">Conversación completa</h5></div> <div class="bg-white rounded-lg p-4 shadow-sm"><div class="space-y-4"><div class="space-y-2"><div class="inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-sm px-3 py-1 font-medium rounded-full bg-blue-50 text-blue-700 border-blue-300">
+                        🤖 Sol
+                      </div> <div class="text-sm text-gray-700 ml-2 p-4 bg-gray-50 rounded-lg border-l-4 border-purple-300 leading-relaxed">
+                        Hola Minnie Mouse, soy Sol, el asistente virtual de Emptor, y me encargo de realizar las verificaciones de referencias. Me comunico contigo porque Mickey Mouse te ha listado como referencia profesional. ¿Cómo estás?
+                      </div></div> <div class="space-y-2"><div class="inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-sm px-3 py-1 font-medium rounded-full bg-pink-50 text-pink-700 border-pink-300">
+                        👤 Referencia
+                      </div> <div class="text-sm text-gray-700 ml-2 p-4 bg-gray-50 rounded-lg border-l-4 border-purple-300 leading-relaxed">
+                        ¡Hola Sol! Todo bien, gracias. ¿Mickey pidió referencias?
+                      </div></div></div></div></div></div></div></div></div> <div class="mt-4 transition-all duration-500 opacity-100 transform translate-y-0"><div class="bg-gradient-to-r from-pink-50 to-yellow-50 rounded-lg p-4 border border-pink-100 max-w-3xl mx-auto"><h4 class="text-base font-semibold text-gray-900 mb-2">
+          Todo tu proceso de verificación de referencias automatizado con Sol
+        </h4> <p class="text-sm text-gray-600 mb-3">
+          Desde el contacto de WhatsApp y voz con candidatos y referencias hasta el reporte final de cada conversación.
+        </p> <button type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary hover:bg-primary/90 px-4 py-2 w-full text-white hover:opacity-90 font-medium rounded-lg transition-opacity text-sm h-9" style="background-color: rgb(229, 38, 133);">
+          🚀 Probar Sol ahora
+        </button></div></div></div>
+</body>
+</html>
