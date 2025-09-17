@@ -28,6 +28,23 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            position: relative;
+        }
+        
+        .tap-zone {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            z-index: 10;
+        }
+        
+        .tap-zone-left {
+            left: 0;
+        }
+        
+        .tap-zone-right {
+            right: 0;
         }
         
         video {
@@ -47,36 +64,14 @@
             display: none;
         }
         
-        .paused-indicator {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-        }
-        
-        .paused-indicator::before,
-        .paused-indicator::after {
-            content: '';
-            width: 12px;
-            height: 40px;
-            background: white;
-            margin: 0 8px;
-        }
     </style>
 </head>
 <body>
     <div class="video-container" id="videoContainer">
+        <div class="tap-zone tap-zone-left" id="leftZone"></div>
+        <div class="tap-zone tap-zone-right" id="rightZone"></div>
         <video id="videoPlayer" autoplay muted></video>
         <div class="loading" id="loading">Loading...</div>
-        <div class="paused-indicator" id="pausedIndicator"></div>
     </div>
     
     <script>
@@ -92,8 +87,8 @@
         const videoPlayer = document.getElementById('videoPlayer');
         const videoContainer = document.getElementById('videoContainer');
         const loading = document.getElementById('loading');
-        const pausedIndicator = document.getElementById('pausedIndicator');
-        let isPlaying = true;
+        const leftZone = document.getElementById('leftZone');
+        const rightZone = document.getElementById('rightZone');
         
         function loadVideo(index) {
             loading.style.display = 'block';
@@ -106,24 +101,25 @@
             loadVideo(currentVideoIndex);
         }
         
+        function playPreviousVideo() {
+            currentVideoIndex = (currentVideoIndex - 1 + videos.length) % videos.length;
+            loadVideo(currentVideoIndex);
+        }
+        
         // Initialize first video
         loadVideo(currentVideoIndex);
         
         // Handle video events
         videoPlayer.addEventListener('loadeddata', () => {
             loading.style.display = 'none';
-            if (isPlaying) {
-                videoPlayer.play().catch(e => {
-                    console.error('Auto-play failed:', e);
-                    // If autoplay fails, wait for user interaction
-                });
-            }
+            videoPlayer.play().catch(e => {
+                console.error('Auto-play failed:', e);
+                // If autoplay fails, wait for user interaction
+            });
         });
         
         videoPlayer.addEventListener('ended', () => {
-            if (isPlaying) {
-                playNextVideo();
-            }
+            playNextVideo();
         });
         
         videoPlayer.addEventListener('error', (e) => {
@@ -132,17 +128,16 @@
             playNextVideo();
         });
         
-        // Toggle play/pause on tap/click
-        videoContainer.addEventListener('click', () => {
-            if (isPlaying) {
-                videoPlayer.pause();
-                pausedIndicator.style.display = 'flex';
-                isPlaying = false;
-            } else {
-                videoPlayer.play();
-                pausedIndicator.style.display = 'none';
-                isPlaying = true;
-            }
+        // Handle left zone tap - go to previous video
+        leftZone.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playPreviousVideo();
+        });
+        
+        // Handle right zone tap - go to next video
+        rightZone.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playNextVideo();
         });
         
         // Prevent context menu on long press (for touchscreens)
@@ -155,7 +150,7 @@
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 videoPlayer.pause();
-            } else if (isPlaying) {
+            } else {
                 videoPlayer.play();
             }
         });
@@ -174,12 +169,15 @@
         
         // Try to go fullscreen on first interaction
         let fullscreenAttempted = false;
-        videoContainer.addEventListener('click', () => {
+        const attemptFullscreen = () => {
             if (!fullscreenAttempted) {
                 goFullscreen();
                 fullscreenAttempted = true;
             }
-        }, { once: true });
+        };
+        
+        leftZone.addEventListener('click', attemptFullscreen, { once: true });
+        rightZone.addEventListener('click', attemptFullscreen, { once: true });
     </script>
 </body>
 </html>
