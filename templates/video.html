@@ -121,15 +121,18 @@
     </div>
     
     <script>
-        const videos = [
+        const mainVideos = [
             'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064168/1_mnpbuc.mp4',
             'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064165/2_mexsbf.mov',
             'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064164/4_cehsv0.mov',
-            'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064163/3_r9pdtc.mov',
-            'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064160/INFO_wrvcfd.mp4'
+            'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064163/3_r9pdtc.mov'
         ];
         
-        let currentVideoIndex = 0;
+        const infoVideo = 'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064160/INFO_wrvcfd.mp4';
+        
+        let currentMainVideoIndex = 0;
+        let skippedInfoLastTime = false;
+        let currentVideoUrl = '';
         const videoPlayer = document.getElementById('videoPlayer');
         const videoContainer = document.getElementById('videoContainer');
         const loading = document.getElementById('loading');
@@ -140,24 +143,57 @@
         const pausedIndicator = document.getElementById('pausedIndicator');
         let isPlaying = true;
         
-        function loadVideo(index) {
+        function loadVideo(url) {
             loading.style.display = 'block';
-            videoPlayer.src = videos[index];
+            currentVideoUrl = url;
+            videoPlayer.src = url;
             videoPlayer.load();
         }
         
+        function shouldPlayInfoVideo() {
+            // Always play if skipped last time
+            if (skippedInfoLastTime) {
+                return true;
+            }
+            // Otherwise 66% chance
+            return Math.random() < 0.66;
+        }
+        
+        function getNextVideoUrl() {
+            // If current video is info video, play next main video
+            if (currentVideoUrl === infoVideo) {
+                const url = mainVideos[currentMainVideoIndex];
+                currentMainVideoIndex = (currentMainVideoIndex + 1) % mainVideos.length;
+                skippedInfoLastTime = false;
+                return url;
+            }
+            
+            // Otherwise, decide whether to play info video
+            if (shouldPlayInfoVideo()) {
+                skippedInfoLastTime = false;
+                return infoVideo;
+            } else {
+                // Play next main video
+                skippedInfoLastTime = true;
+                const url = mainVideos[currentMainVideoIndex];
+                currentMainVideoIndex = (currentMainVideoIndex + 1) % mainVideos.length;
+                return url;
+            }
+        }
+        
         function playNextVideo() {
-            currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-            loadVideo(currentVideoIndex);
+            const nextUrl = getNextVideoUrl();
+            loadVideo(nextUrl);
         }
         
         function playPreviousVideo() {
-            currentVideoIndex = (currentVideoIndex - 1 + videos.length) % videos.length;
-            loadVideo(currentVideoIndex);
+            // For previous, just go back in main videos
+            currentMainVideoIndex = (currentMainVideoIndex - 1 + mainVideos.length) % mainVideos.length;
+            loadVideo(mainVideos[currentMainVideoIndex]);
         }
         
         // Initialize first video
-        loadVideo(currentVideoIndex);
+        loadVideo(mainVideos[currentMainVideoIndex]);
         
         // Handle video events
         videoPlayer.addEventListener('loadeddata', () => {
