@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Loop Display</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            display: none;
+        }
+        
+        .paused-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        
+        .paused-indicator::before,
+        .paused-indicator::after {
+            content: '';
+            width: 12px;
+            height: 40px;
+            background: white;
+            margin: 0 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container" id="videoContainer">
+        <video id="videoPlayer" autoplay muted></video>
+        <div class="loading" id="loading">Loading...</div>
+        <div class="paused-indicator" id="pausedIndicator"></div>
+    </div>
+    
+    <script>
+        const videos = [
+            'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064168/1_mnpbuc.mp4',
+            'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064165/2_mexsbf.mov',
+            'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064164/4_cehsv0.mov',
+            'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064163/3_r9pdtc.mov',
+            'https://res.cloudinary.com/dsbzveh0y/video/upload/v1758064160/INFO_wrvcfd.mp4'
+        ];
+        
+        let currentVideoIndex = 0;
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoContainer = document.getElementById('videoContainer');
+        const loading = document.getElementById('loading');
+        const pausedIndicator = document.getElementById('pausedIndicator');
+        let isPlaying = true;
+        
+        function loadVideo(index) {
+            loading.style.display = 'block';
+            videoPlayer.src = videos[index];
+            videoPlayer.load();
+        }
+        
+        function playNextVideo() {
+            currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+            loadVideo(currentVideoIndex);
+        }
+        
+        // Initialize first video
+        loadVideo(currentVideoIndex);
+        
+        // Handle video events
+        videoPlayer.addEventListener('loadeddata', () => {
+            loading.style.display = 'none';
+            if (isPlaying) {
+                videoPlayer.play().catch(e => {
+                    console.error('Auto-play failed:', e);
+                    // If autoplay fails, wait for user interaction
+                });
+            }
+        });
+        
+        videoPlayer.addEventListener('ended', () => {
+            if (isPlaying) {
+                playNextVideo();
+            }
+        });
+        
+        videoPlayer.addEventListener('error', (e) => {
+            console.error('Video error:', e);
+            // Try next video on error
+            playNextVideo();
+        });
+        
+        // Toggle play/pause on tap/click
+        videoContainer.addEventListener('click', () => {
+            if (isPlaying) {
+                videoPlayer.pause();
+                pausedIndicator.style.display = 'flex';
+                isPlaying = false;
+            } else {
+                videoPlayer.play();
+                pausedIndicator.style.display = 'none';
+                isPlaying = true;
+            }
+        });
+        
+        // Prevent context menu on long press (for touchscreens)
+        videoContainer.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+        
+        // Handle visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                videoPlayer.pause();
+            } else if (isPlaying) {
+                videoPlayer.play();
+            }
+        });
+        
+        // Ensure fullscreen-like experience
+        function goFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+        
+        // Try to go fullscreen on first interaction
+        let fullscreenAttempted = false;
+        videoContainer.addEventListener('click', () => {
+            if (!fullscreenAttempted) {
+                goFullscreen();
+                fullscreenAttempted = true;
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>

@@ -771,6 +771,10 @@ async def create_sol_call(signup: Signup):
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/video", response_class=HTMLResponse)
+async def video(request: Request):
+    return templates.TemplateResponse("video.html", {"request": request})
+
 @app.get("/voice/{signup_id}")
 async def get_voice_memo(signup_id: str, token: str):
     """Serve voice memo with 24-hour expiration check"""
