@@ -20,6 +20,7 @@ import asyncio
 from datetime import datetime, timedelta
 from pathlib import Path
 import base64
+import re
 
 import peewee as pw
 from fastapi import FastAPI, Form, Request, File, UploadFile
@@ -38,9 +39,10 @@ class BaseModelDB(pw.Model):
 
 class Signup(BaseModelDB):
     id = pw.CharField(primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = pw.CharField(null=False)
+    name = pw.CharField(null=False)  # Stores the referee name
     email = pw.CharField(null=False)
     phone = pw.CharField(null=False)
+    candidate = pw.CharField(null=False)
     description = pw.TextField(null=True)
     voice_memo_path = pw.CharField(null=True)
     talk_to_sol = pw.BooleanField(default=False)
@@ -53,6 +55,11 @@ class Signup(BaseModelDB):
 # Create tables
 db.connect()
 db.create_tables([Signup])
+
+# Ensure new columns exist if database was created before updates
+existing_columns = [column.name for column in db.get_columns('signups')]
+if 'candidate' not in existing_columns:
+    db.execute_sql("ALTER TABLE signups ADD COLUMN candidate TEXT")
 
 # FastAPI app
 app = FastAPI()
@@ -376,18 +383,23 @@ html_template = """
         <form id="signupForm">
             <div class="left-column">
                 <div class="form-group">
-                    <label for="name">Nombre *</label>
-                    <input type="text" id="name" name="name" required>
+                    <label for="referee">Referee *</label>
+                    <input type="text" id="referee" name="referee" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">Correo electrónico *</label>
-                    <input type="email" id="email" name="email" required>
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" name="email">
                 </div>
                 
                 <div class="form-group">
                     <label for="phone">Teléfono *</label>
                     <input type="tel" id="phone" name="phone" required placeholder="+51 999 999 999">
+                </div>
+
+                <div class="form-group">
+                    <label for="candidate">Candidato *</label>
+                    <input type="text" id="candidate" name="candidate" required>
                 </div>
                 
                 <div class="form-group">
@@ -690,9 +702,10 @@ async def send_signup_email(signup: Signup):
     email_content = f"""
 Nueva inscripción en conferencia:
 
-Nombre: {signup.name}
-Email: {signup.email}
+Referee: {signup.name}
+Email: {signup.email or 'No proporcionado'}
 Teléfono: {signup.phone}
+Candidato: {signup.candidate}
 Descripción: {signup.description or 'No proporcionada'}
 
 Opciones seleccionadas:
@@ -731,30 +744,47 @@ async def create_sol_call(signup: Signup):
     if not all([LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET]):
         print("LiveKit credentials not configured")
         return None
-        
+
     livekit_api = api.LiveKitAPI(
         LIVEKIT_URL,
         LIVEKIT_API_KEY,
         LIVEKIT_API_SECRET
     )
-    
-    # Fixed Sol's phone number
-    sol_phone = "+525591626502"
-    
-    # Generate room name
-    participant_name = signup.name.replace(" ", "_")
-    participant_name_number = f"{participant_name}_{signup.phone}"
-    room_name = f"soldemo-{participant_name_number}-room-m-{signup.id}"
-    
-    participant_identity = f"identity-sip-{signup.phone.replace('+', '')}"
-    
+    # Normalize the submitted phone number to E.164-ish format
+    normalized_phone = re.sub(r"\D", "", signup.phone or "")
+    if not normalized_phone:
+        print("Invalid phone number provided")
+        await livekit_api.aclose()
+        return None
+    normalized_phone = f"+{normalized_phone}"
+
+    # Prepare string-safe identifiers for room/call metadata
+    referee_value = signup.name or "referee"
+    candidate_value = getattr(signup, "candidate", None) or "candidate"
+
+    def _clean_label(value: str, fallback: str) -> str:
+        cleaned = re.sub(r"[^A-Za-z0-9 ]+", "", value or "")
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        return cleaned or fallback
+
+    referee_label = _clean_label(referee_value, "referee")
+    candidate_label = _clean_label(candidate_value, "candidate")
+    phone_digits = normalized_phone.replace("+", "")
+
+    random_suffix = uuid.uuid4()
+    room_name = (
+        f"referenceemptorio-{referee_label}_+{phone_digits}-{candidate_label}-room-m-{random_suffix}"
+    )
+
+    participant_identity = f"identity-sip-{phone_digits}"
+    participant_name = referee_label
     # Create SIP participant request
     request = api.CreateSIPParticipantRequest(
         sip_trunk_id=SIP_TRUNK_ID,
-        sip_call_to=sol_phone,
+        sip_call_to=normalized_phone,
         room_name=room_name,
         participant_identity=participant_identity,
-        participant_name=participant_name_number,
+        participant_name=participant_name,
     )
     
     try:
@@ -812,9 +842,10 @@ async def get_voice_memo(signup_id: str, token: str):
 
 @app.post("/signup")
 async def signup(
-    name: str = Form(...),
-    email: str = Form(...),
+    referee: str = Form(...),
+    email: str = Form(""),
     phone: str = Form(...),
+    candidate: str = Form(...),
     description: str = Form(None),
     talk_to_sol: bool = Form(False),
     want_report_example: bool = Form(False),
@@ -842,9 +873,10 @@ async def signup(
     
     # Save signup to database
     signup = Signup.create(
-        name=name,
-        email=email,
+        name=referee,
+        email=email or "",
         phone=phone,
+        candidate=candidate,
         description=description,
         voice_memo_path=voice_memo_path,
         talk_to_sol=talk_to_sol,
