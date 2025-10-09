@@ -31,32 +31,9 @@
             padding: 40px;
         }
         
-        @media (orientation: landscape) and (min-width: 768px) {
-            .container {
-                max-width: 900px;
-            }
-            
-            form {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 40px;
-            }
-            
-            .left-column {
-                grid-column: 1;
-            }
-            
-            .right-column {
-                grid-column: 2;
-            }
-            
-            .submit-btn {
-                grid-column: 1 / -1;
-            }
-            
-            .success-message, .error-message {
-                grid-column: 1 / -1;
-            }
+        form {
+            max-width: 500px;
+            margin: 0 auto;
         }
         
         .logo {
@@ -118,64 +95,6 @@
             min-height: 100px;
         }
         
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            margin: 30px 0;
-            padding: 20px;
-            background: #FEFEFF;
-            border-radius: 12px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            margin-right: 16px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        
-        .checkbox-group:hover {
-            background: #F0EBFF;
-        }
-        
-        .checkbox-group:active {
-            background: #E8E0FF;
-        }
-        
-        .checkbox-group label {
-            margin: 0;
-            cursor: pointer;
-            color: #7B3FF2;
-            font-weight: 600;
-        }
-        
-        .checkbox-with-animation {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        
-        .checkbox-content {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-        
-        .mini-sol {
-            width: 80px;
-            height: 80px;
-            margin-left: 10px;
-            -webkit-mask-image: -webkit-radial-gradient(white, black);
-            mask-image: radial-gradient(white, black);
-        }
-        
-        video {
-            background: transparent;
-        }
         
         .submit-btn {
             width: 100%;
@@ -219,89 +138,6 @@
             margin-top: 20px;
         }
         
-        .sol-feature {
-            background: #FFF8E1;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .voice-controls {
-            margin-top: 10px;
-        }
-        
-        .voice-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background: #FFF;
-            border: 2px solid #7B3FF2;
-            border-radius: 8px;
-            color: #7B3FF2;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .voice-btn:hover:not(:disabled) {
-            background: #F0EBFF;
-        }
-        
-        .voice-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .voice-btn.recording {
-            background: #FF4444;
-            color: white;
-            border-color: #FF4444;
-        }
-        
-        .voice-btn.recording:hover:not(:disabled) {
-            background: #CC0000;
-            border-color: #CC0000;
-        }
-        
-        .record-icon {
-            font-size: 18px;
-        }
-        
-        .recording-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: 16px;
-            color: #FF4444;
-            font-weight: 500;
-        }
-        
-        .recording-dot {
-            width: 10px;
-            height: 10px;
-            background: #FF4444;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
     </style>
 </head>
 <body>
@@ -310,7 +146,7 @@
         </div>
         
         <form id="signupForm">
-            <div class="left-column">
+            <div>
                 <div class="form-group">
                     <label for="name">Nombre</label>
                     <input type="text" id="name" name="name">
@@ -328,61 +164,15 @@
                 
                 <div class="form-group">
                     <label for="description">Descripción (opcional)</label>
-                    <div style="position: relative;">
-                        <textarea id="description" name="description" placeholder="Cuéntanos sobre ti o tu empresa..."></textarea>
-                        <div class="voice-controls">
-                            <button type="button" id="recordButton" class="voice-btn">
-                                <span class="record-icon">🎤</span>
-                                <span class="record-text">Grabar</span>
-                            </button>
-                            <div id="recordingStatus" class="recording-status" style="display: none;">
-                                <span class="recording-dot"></span>
-                                <span>Grabando...</span>
-                                <span id="recordingTime">0:00</span>
-                            </div>
-                            <audio id="audioPlayback" controls style="display: none; margin-top: 10px; width: 100%;"></audio>
-                        </div>
-                    </div>
+                    <textarea id="description" name="description" placeholder="Cuéntanos sobre ti o tu empresa..."></textarea>
                 </div>
             </div>
             
-            <div class="right-column">
-                <div class="checkbox-group">
-                    <div class="checkbox-with-animation">
-                        <div class="checkbox-content">
-                            <input type="checkbox" id="talk_to_sol" name="talk_to_sol">
-                            <label for="talk_to_sol">¡Quiero hablar con Sol ahora!</label>
-                        </div>
-                        <video class="mini-sol" autoplay loop muted playsinline>
-                            <source src="https://www.emptor.io/assets/sol/SOL%20LOOPS/GL01_PHONE.webm" type="video/webm">
-                        </video>
-                    </div>
-                </div>
-                
-                <div class="checkbox-group">
-                    <div class="checkbox-with-animation">
-                        <div class="checkbox-content">
-                            <input type="checkbox" id="want_report_example" name="want_report_example">
-                            <label for="want_report_example">Quiero recibir un ejemplo de reporte de antecedentes</label>
-                        </div>
-                        <video class="mini-sol" autoplay loop muted playsinline>
-                            <source src="https://www.emptor.io/assets/sol/SOL%20LOOPS/SOL_GL04_DETECTIVE.webm" type="video/webm">
-                        </video>
-                    </div>
-                </div>
-                
-                <div class="sol-feature">
-                    <strong>¿Qué hace Sol por ti?</strong><br>
-                    • Procesa más candidatos en menos tiempo<br>
-                    • Personaliza la contratación sin ser experto en tecnología<br>
-                    • Enfoca tu energía en las relaciones humanas
-                </div>
-            </div>
             
             <button type="submit" class="submit-btn">Registrarme</button>
             
             <div class="success-message" id="successMessage">
-                ¡Registro exitoso! {% if show_sol_message %}Sol te llamará en unos segundos...{% endif %}
+                ¡Registro exitoso! Sol te llamará en unos segundos...
             </div>
             
             <div class="error-message" id="errorMessage">
@@ -391,149 +181,7 @@
         </form>
     </div>
     
-    <!-- Audio recording polyfill for iOS compatibility -->
-    <script src="https://cdn.jsdelivr.net/npm/recordrtc@5.6.2/RecordRTC.min.js"></script>
     <script>
-        // We'll use RecordRTC which has better iOS support
-        
-        // Voice recording functionality
-        let recorder;
-        let recordingStartTime;
-        let recordingInterval;
-        let audioBlob;
-        let audioStream;
-        
-        const recordButton = document.getElementById('recordButton');
-        const recordingStatus = document.getElementById('recordingStatus');
-        const recordingTime = document.getElementById('recordingTime');
-        const audioPlayback = document.getElementById('audioPlayback');
-        const descriptionTextarea = document.getElementById('description');
-        
-        // Check for microphone permissions on page load
-        async function checkMicrophonePermissions() {
-            try {
-                // iOS doesn't support permissions.query for microphone
-                if (navigator.permissions && navigator.permissions.query) {
-                    const result = await navigator.permissions.query({ name: 'microphone' });
-                    return result.state;
-                }
-                return 'prompt';
-            } catch (error) {
-                // Permissions API might not be available
-                return 'prompt';
-            }
-        }
-        
-        // Check if getUserMedia is available
-        function checkAudioSupport() {
-            // For iOS Safari, we need to check differently
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                return true;
-            }
-            
-            // Fallback for older browsers
-            navigator.getUserMedia = navigator.getUserMedia ||
-                                   navigator.webkitGetUserMedia ||
-                                   navigator.mozGetUserMedia ||
-                                   navigator.msGetUserMedia;
-            
-            return !!navigator.getUserMedia;
-        }
-        
-        recordButton.addEventListener('click', async () => {
-            if (!recorder || (recorder && recorder.getState() === 'stopped')) {
-                // Start recording
-                try {
-                    // Update button to show requesting permissions
-                    recordButton.disabled = true;
-                    recordButton.querySelector('.record-text').textContent = 'Solicitando permisos...';
-                    
-                    // Request audio - this works on iOS Safari
-                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    
-                    // Re-enable button
-                    recordButton.disabled = false;
-                    
-                    // Use RecordRTC for cross-browser compatibility including iOS
-                    recorder = new RecordRTC(audioStream, {
-                        type: 'audio',
-                        mimeType: 'audio/wav',
-                        recorderType: RecordRTC.StereoAudioRecorder,
-                        numberOfAudioChannels: 1,
-                        desiredSampRate: 16000
-                    });
-                    
-                    recorder.startRecording();
-                    recordingStartTime = Date.now();
-                    
-                    // Update UI
-                    recordButton.classList.add('recording');
-                    recordButton.querySelector('.record-text').textContent = 'Detener';
-                    recordingStatus.style.display = 'inline-flex';
-                    
-                    // Update recording time
-                    recordingInterval = setInterval(() => {
-                        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
-                        const minutes = Math.floor(elapsed / 60);
-                        const seconds = elapsed % 60;
-                        recordingTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                    }, 1000);
-                    
-                } catch (error) {
-                    console.error('Error accessing microphone:', error);
-                    recordButton.disabled = false;
-                    recordButton.querySelector('.record-text').textContent = 'Grabar';
-                    
-                    if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                        alert('Acceso al micrófono denegado. Por favor, permite el acceso al micrófono cuando el navegador lo solicite.');
-                    } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                        alert('No se encontró ningún micrófono. Por favor, conecta un micrófono y vuelve a intentar.');
-                    } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-                        alert('El micrófono está siendo usado por otra aplicación. Por favor, cierra otras aplicaciones que puedan estar usando el micrófono.');
-                    } else {
-                        alert('Error al acceder al micrófono. Por favor, asegúrate de estar usando HTTPS y de que tu navegador soporta grabación de audio.');
-                    }
-                }
-            } else {
-                // Stop recording
-                recorder.stopRecording(function() {
-                    audioBlob = recorder.getBlob();
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    audioPlayback.src = audioUrl;
-                    audioPlayback.style.display = 'block';
-                    
-                    // Stop all tracks
-                    if (audioStream) {
-                        audioStream.getTracks().forEach(track => track.stop());
-                    }
-                    
-                    // Destroy recorder to free up resources
-                    recorder.destroy();
-                    recorder = null;
-                });
-                
-                clearInterval(recordingInterval);
-                
-                // Update UI
-                recordButton.classList.remove('recording');
-                recordButton.querySelector('.record-text').textContent = 'Grabar';
-                recordingStatus.style.display = 'none';
-            }
-        });
-        
-        // Make checkbox groups clickable anywhere
-        document.querySelectorAll('.checkbox-group').forEach(group => {
-            group.addEventListener('click', (e) => {
-                // Don't toggle if clicking directly on checkbox or label
-                if (e.target.type !== 'checkbox' && e.target.tagName !== 'LABEL') {
-                    const checkbox = group.querySelector('input[type="checkbox"]');
-                    checkbox.checked = !checkbox.checked;
-                }
-            });
-        });
-        
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -546,11 +194,6 @@
             
             const formData = new FormData(e.target);
             
-            // Add audio blob if exists
-            if (audioBlob) {
-                formData.append('voice_memo', audioBlob, 'voice_memo.wav');
-            }
-            
             try {
                 const response = await fetch('/signup', {
                     method: 'POST',
@@ -561,20 +204,9 @@
                     const result = await response.json();
                     e.target.reset();
                     
-                    // Reset audio recording UI
-                    audioPlayback.style.display = 'none';
-                    audioPlayback.src = '';
-                    audioBlob = null;
-                    audioChunks = [];
-                    
                     successMsg.style.display = 'block';
                     errorMsg.style.display = 'none';
-                    
-                    if (result.sol_call_initiated) {
-                        successMsg.textContent = '¡Registro exitoso! Sol te llamará en unos segundos...';
-                    } else {
-                        successMsg.textContent = '¡Registro exitoso!';
-                    }
+                    successMsg.textContent = '¡Registro exitoso! Sol te llamará en unos segundos...';
                     
                     setTimeout(() => {
                         successMsg.style.display = 'none';

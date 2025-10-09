@@ -708,19 +708,10 @@ Email: {signup.email or 'No proporcionado'}
 Teléfono: {signup.phone}
 Descripción: {signup.description or 'No proporcionada'}
 
-Opciones seleccionadas:
-- Hablar con Sol: {'Sí' if signup.talk_to_sol else 'No'}
-- Quiere ejemplo de reporte: {'Sí' if signup.want_report_example else 'No'}
 
 Fecha de registro: {signup.created_at.strftime('%Y-%m-%d %H:%M:%S')}
 """
     
-    # Add voice memo link if exists
-    if signup.voice_memo_path:
-        # Generate a secure token for the voice memo
-        token = base64.urlsafe_b64encode(f"{signup.id}:{signup.created_at.timestamp()}".encode()).decode()
-        voice_url = f"{APP_BASE_URL}/voice/{signup.id}?token={token}"
-        email_content += f"\nMemo de voz: {voice_url} (válido por 24 horas)"
     
     async with httpx.AsyncClient() as client:
         try:
@@ -840,31 +831,8 @@ async def signup(
     name: str = Form(""),
     email: str = Form(""),
     phone: str = Form(""),
-    description: str = Form(None),
-    talk_to_sol: bool = Form(False),
-    want_report_example: bool = Form(False),
-    voice_memo: UploadFile = File(None)
+    description: str = Form(None)
 ):
-    voice_memo_path = None
-    
-    # Save voice memo if provided
-    if voice_memo and voice_memo.filename:
-        # Create voice_memos directory if it doesn't exist
-        voice_memos_dir = Path(__file__).parent / "voice_memos"
-        voice_memos_dir.mkdir(exist_ok=True)
-        
-        # Generate unique filename
-        file_extension = voice_memo.filename.split('.')[-1]
-        unique_filename = f"{uuid.uuid4()}.{file_extension}"
-        file_path = voice_memos_dir / unique_filename
-        
-        # Save the file
-        async with aiofiles.open(file_path, 'wb') as f:
-            content = await voice_memo.read()
-            await f.write(content)
-        
-        voice_memo_path = str(file_path)
-    
     # Save signup to database
     signup = Signup.create(
         name=name or None,
@@ -872,17 +840,14 @@ async def signup(
         phone=phone or None,
         candidate=None,
         description=description,
-        voice_memo_path=voice_memo_path,
-        talk_to_sol=talk_to_sol,
-        want_report_example=want_report_example
+        voice_memo_path=None,
+        talk_to_sol=True,  # Always true now
+        want_report_example=False
     )
     
-    sol_call_initiated = False
-    
-    # If user wants to talk to Sol, initiate the call
-    if talk_to_sol:
-        call_result = await create_sol_call(signup)
-        sol_call_initiated = call_result is not None
+    # Always initiate call to Sol
+    call_result = await create_sol_call(signup)
+    sol_call_initiated = call_result is not None
     
     # Send email notification
     await send_signup_email(signup)
