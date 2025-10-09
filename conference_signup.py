@@ -768,7 +768,7 @@ async def create_sol_call(signup: Signup):
 
     random_suffix = uuid.uuid4()
     room_name = (
-        f"referenceemptorio-{referee_label}_+{phone_digits}-room-m-{random_suffix}"
+        f"soldemo-{referee_label}_+{phone_digits}-room-m-{random_suffix}"
     )
 
     participant_identity = f"identity-sip-{phone_digits}"
