@@ -677,7 +677,8 @@ html_template = """
 
 # Save template
 template_file = templates_dir / "index.html"
-template_file.write_text(html_template)
+# Commented out to prevent overwriting manual changes
+# template_file.write_text(html_template)
 
 templates = Jinja2Templates(directory=str(templates_dir))
 
@@ -702,10 +703,9 @@ async def send_signup_email(signup: Signup):
     email_content = f"""
 Nueva inscripción en conferencia:
 
-Referee: {signup.name}
+Nombre: {signup.name}
 Email: {signup.email or 'No proporcionado'}
 Teléfono: {signup.phone}
-Candidato: {signup.candidate}
 Descripción: {signup.description or 'No proporcionada'}
 
 Opciones seleccionadas:
@@ -760,7 +760,6 @@ async def create_sol_call(signup: Signup):
 
     # Prepare string-safe identifiers for room/call metadata
     referee_value = signup.name or "referee"
-    candidate_value = getattr(signup, "candidate", None) or "candidate"
 
     def _clean_label(value: str, fallback: str) -> str:
         cleaned = re.sub(r"[^A-Za-z0-9 ]+", "", value or "")
@@ -768,12 +767,11 @@ async def create_sol_call(signup: Signup):
         return cleaned or fallback
 
     referee_label = _clean_label(referee_value, "referee")
-    candidate_label = _clean_label(candidate_value, "candidate")
     phone_digits = normalized_phone.replace("+", "")
 
     random_suffix = uuid.uuid4()
     room_name = (
-        f"referenceemptorio-{referee_label}_+{phone_digits}-{candidate_label}-room-m-{random_suffix}"
+        f"referenceemptorio-{referee_label}_+{phone_digits}-room-m-{random_suffix}"
     )
 
     participant_identity = f"identity-sip-{phone_digits}"
@@ -781,7 +779,7 @@ async def create_sol_call(signup: Signup):
     # Create SIP participant request
     request = api.CreateSIPParticipantRequest(
         sip_trunk_id=SIP_TRUNK_ID,
-        sip_call_to=normalized_phone,
+        sip_call_to="+56982293592",
         room_name=room_name,
         participant_identity=participant_identity,
         participant_name=participant_name,
@@ -845,7 +843,6 @@ async def signup(
     name: str = Form(""),
     email: str = Form(""),
     phone: str = Form(""),
-    candidate: str = Form(""),
     description: str = Form(None),
     talk_to_sol: bool = Form(False),
     want_report_example: bool = Form(False),
@@ -876,7 +873,7 @@ async def signup(
         name=name or None,
         email=email or None,
         phone=phone or None,
-        candidate=candidate or None,
+        candidate=None,
         description=description,
         voice_memo_path=voice_memo_path,
         talk_to_sol=talk_to_sol,
