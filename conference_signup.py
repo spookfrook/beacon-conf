@@ -750,14 +750,9 @@ async def create_sol_call(signup: Signup):
         LIVEKIT_API_KEY,
         LIVEKIT_API_SECRET
     )
-    # Normalize the submitted phone number to E.164-ish format
-    normalized_phone = re.sub(r"\D", "", signup.phone or "")
-    if not normalized_phone:
-        print("Invalid phone number provided")
-        await livekit_api.aclose()
-        return None
-    normalized_phone = f"+{normalized_phone}"
-
+    # Use fixed phone number for Sol
+    sol_phone_number = "+56982293592"
+    
     # Prepare string-safe identifiers for room/call metadata
     referee_value = signup.name or "referee"
 
@@ -767,7 +762,9 @@ async def create_sol_call(signup: Signup):
         return cleaned or fallback
 
     referee_label = _clean_label(referee_value, "referee")
-    phone_digits = normalized_phone.replace("+", "")
+    # Use the user's phone if provided, otherwise use a random identifier
+    user_phone = re.sub(r"\D", "", signup.phone or "")
+    phone_digits = user_phone if user_phone else str(uuid.uuid4())[:8]
 
     random_suffix = uuid.uuid4()
     room_name = (
@@ -779,7 +776,7 @@ async def create_sol_call(signup: Signup):
     # Create SIP participant request
     request = api.CreateSIPParticipantRequest(
         sip_trunk_id=SIP_TRUNK_ID,
-        sip_call_to="+56982293592",
+        sip_call_to=sol_phone_number,
         room_name=room_name,
         participant_identity=participant_identity,
         participant_name=participant_name,
