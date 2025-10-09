@@ -39,10 +39,10 @@ class BaseModelDB(pw.Model):
 
 class Signup(BaseModelDB):
     id = pw.CharField(primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = pw.CharField(null=False)  # Stores the referee name
-    email = pw.CharField(null=False)
-    phone = pw.CharField(null=False)
-    candidate = pw.CharField(null=False)
+    name = pw.CharField(null=True)  # Stores the referee name
+    email = pw.CharField(null=True)
+    phone = pw.CharField(null=True)
+    candidate = pw.CharField(null=True)
     description = pw.TextField(null=True)
     voice_memo_path = pw.CharField(null=True)
     talk_to_sol = pw.BooleanField(default=False)
@@ -842,10 +842,10 @@ async def get_voice_memo(signup_id: str, token: str):
 
 @app.post("/signup")
 async def signup(
-    referee: str = Form(...),
+    name: str = Form(""),
     email: str = Form(""),
-    phone: str = Form(...),
-    candidate: str = Form(...),
+    phone: str = Form(""),
+    candidate: str = Form(""),
     description: str = Form(None),
     talk_to_sol: bool = Form(False),
     want_report_example: bool = Form(False),
@@ -873,10 +873,10 @@ async def signup(
     
     # Save signup to database
     signup = Signup.create(
-        name=referee,
-        email=email or "",
-        phone=phone,
-        candidate=candidate,
+        name=name or None,
+        email=email or None,
+        phone=phone or None,
+        candidate=candidate or None,
         description=description,
         voice_memo_path=voice_memo_path,
         talk_to_sol=talk_to_sol,
