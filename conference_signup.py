@@ -799,6 +799,10 @@ async def reference(request: Request):
 async def call(request: Request):
     return templates.TemplateResponse("call.html", {"request": request})
 
+@app.get("/call-cl", response_class=HTMLResponse)
+async def call_cl(request: Request):
+    return templates.TemplateResponse("call-cl.html", {"request": request})
+
 @app.get("/voice/{signup_id}")
 async def get_voice_memo(signup_id: str, token: str):
     """Serve voice memo with 24-hour expiration check"""
