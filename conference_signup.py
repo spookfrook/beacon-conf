@@ -813,7 +813,7 @@ async def initiate_call():
 
     phone_number = "+51987957567"
     random_suffix = uuid.uuid4()
-    room_name = f"call-pe-{random_suffix}"
+    room_name = f"soldemo-challenger_+51987957567-room-m-{random_suffix}"
     participant_identity = f"caller-{random_suffix}"
 
     request = api.CreateSIPParticipantRequest(
@@ -851,7 +851,7 @@ async def initiate_call_cl():
 
     phone_number = "+56927138099"
     random_suffix = uuid.uuid4()
-    room_name = f"call-cl-{random_suffix}"
+    room_name = f"soldemo-challenger_+56927138099-room-m-{random_suffix}"
     participant_identity = f"caller-{random_suffix}"
 
     request = api.CreateSIPParticipantRequest(
