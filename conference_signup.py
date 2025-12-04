@@ -914,6 +914,51 @@ async def initiate_call_named(name: str = Form(...)):
         await livekit_api.aclose()
         return {"success": False, "error": str(e)}
 
+@app.get("/call-number", response_class=HTMLResponse)
+async def call_number(request: Request):
+    return templates.TemplateResponse("call-number.html", {"request": request})
+
+@app.post("/api/call-number")
+async def initiate_call_number(name: str = Form(...), phone: str = Form(...)):
+    """Initiates a SIP call to custom number with custom name"""
+    if not all([LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET]):
+        return {"success": False, "error": "LiveKit not configured"}
+
+    livekit_api = api.LiveKitAPI(
+        LIVEKIT_URL,
+        LIVEKIT_API_KEY,
+        LIVEKIT_API_SECRET
+    )
+
+    # Clean the name for use in room name
+    cleaned_name = re.sub(r"[^A-Za-z0-9 ]+", "", name or "")
+    cleaned_name = re.sub(r"\s+", " ", cleaned_name).strip()
+    cleaned_name = cleaned_name or "guest"
+
+    # Clean phone number (keep only digits and +)
+    cleaned_phone = re.sub(r"[^\d+]", "", phone or "")
+
+    random_suffix = uuid.uuid4()
+    room_name = f"soldemo-{cleaned_name}_+{cleaned_phone.lstrip('+')}-room-m-{random_suffix}"
+    participant_identity = f"caller-{random_suffix}"
+
+    request = api.CreateSIPParticipantRequest(
+        sip_trunk_id=SIP_TRUNK_ID,
+        sip_call_to=cleaned_phone,
+        room_name=room_name,
+        participant_identity=participant_identity,
+        participant_name=cleaned_name,
+    )
+
+    try:
+        participant = await livekit_api.sip.create_sip_participant(request)
+        await livekit_api.aclose()
+        return {"success": True}
+    except Exception as e:
+        print(f"Error creating call: {e}")
+        await livekit_api.aclose()
+        return {"success": False, "error": str(e)}
+
 @app.get("/voice/{signup_id}")
 async def get_voice_memo(signup_id: str, token: str):
     """Serve voice memo with 24-hour expiration check"""
