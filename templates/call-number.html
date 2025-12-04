@@ -114,9 +114,32 @@
             background: #f44336;
             color: white;
         }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #4CAF50;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+    <div id="toast" class="toast"></div>
     <div class="container">
         <div class="form-group">
             <label for="name">Nombre</label>
@@ -139,6 +162,15 @@
         const status = document.getElementById('status');
         const nameInput = document.getElementById('name');
         const phoneInput = document.getElementById('phone');
+        const toast = document.getElementById('toast');
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
 
         callBtn.addEventListener('click', async () => {
             const name = nameInput.value.trim();
@@ -172,8 +204,9 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    status.className = 'status success';
-                    status.textContent = '¡Llamada iniciada! Te llamaremos en unos segundos...';
+                    showToast('Gracias, estamos llamandote!');
+                    nameInput.value = '';
+                    phoneInput.value = '+569';
                 } else {
                     status.className = 'status error';
                     status.textContent = 'Error al iniciar la llamada. Intenta nuevamente.';
