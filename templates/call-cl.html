@@ -49,26 +49,86 @@
             text-decoration: none;
         }
 
-        .call-btn:hover {
+        .call-btn:hover:not(:disabled) {
             background: #6B2FE2;
             transform: scale(1.02);
         }
 
-        .call-btn:active {
+        .call-btn:active:not(:disabled) {
             transform: scale(0.98);
+        }
+
+        .call-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .phone-icon {
             font-size: 24px;
         }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status.success {
+            display: block;
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status.error {
+            display: block;
+            background: #f44336;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="tel:+56927138099" class="call-btn">
+        <button id="callBtn" class="call-btn">
             <span class="phone-icon">📞</span>
-            <span>Llamar</span>
-        </a>
+            <span id="btnText">Llamar</span>
+        </button>
+        <div id="status" class="status"></div>
     </div>
+
+    <script>
+        const callBtn = document.getElementById('callBtn');
+        const btnText = document.getElementById('btnText');
+        const status = document.getElementById('status');
+
+        callBtn.addEventListener('click', async () => {
+            callBtn.disabled = true;
+            btnText.textContent = 'Llamando...';
+            status.className = 'status';
+            status.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/call-cl', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    status.className = 'status success';
+                    status.textContent = '¡Llamada iniciada! Te llamaremos en unos segundos...';
+                } else {
+                    status.className = 'status error';
+                    status.textContent = 'Error al iniciar la llamada. Intenta nuevamente.';
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = 'Error de conexión. Intenta nuevamente.';
+            } finally {
+                callBtn.disabled = false;
+                btnText.textContent = 'Llamar';
+            }
+        });
+    </script>
 </body>
 </html>
