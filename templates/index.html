@@ -1,213 +1,283 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sol by Emptor - Conference Registration</title>
+    <title>Sol by Emptor - HR Tech Day 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,400;0,500;0,600;0,700;1,400&family=MuseoModerno:wght@500;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #7B3FF2 0%, #4B1B8C 100%);
+            font-family: 'Epilogue', -apple-system, sans-serif;
+            background: #4E008E;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        /* Pattern overlay */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -15%;
+            right: -10%;
+            width: 70%;
+            height: 70%;
+            background: url('/static/PATRON-CIRCULOS-white.png') no-repeat center;
+            background-size: contain;
+            opacity: 0.04;
+            pointer-events: none;
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
         .container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
             width: 100%;
-            padding: 40px;
+            padding: 48px;
         }
-        
-        form {
-            max-width: 500px;
-            margin: 0 auto;
+
+        .header {
+            text-align: left;
+            margin-bottom: 32px;
         }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 10px;
+
+        .header h1 {
+            font-family: 'MuseoModerno', cursive;
+            font-size: 40px;
+            font-weight: 700;
+            color: #4E008E;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
         }
-        
-        .logo h1 {
-            font-size: 48px;
-            color: #7B3FF2;
-            margin-bottom: 10px;
-        }
-        
-        .logo .tagline {
+
+        .header p {
             color: #666;
             font-size: 16px;
         }
-        
-        .sol-mascot {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 20px;
-            display: block;
-        }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
+            color: #1A1B29;
+            font-weight: 600;
+            font-size: 15px;
         }
-        
+
         input[type="text"],
         input[type="email"],
         input[type="tel"],
         textarea {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            font-family: 'Epilogue', sans-serif;
+            transition: border-color 0.2s;
+            background: #fff;
         }
-        
+
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="tel"]:focus,
         textarea:focus {
             outline: none;
-            border-color: #7B3FF2;
+            border-color: #4E008E;
         }
-        
+
         textarea {
             resize: vertical;
             min-height: 100px;
         }
-        
-        
+
         .submit-btn {
             width: 100%;
             padding: 16px;
-            background: #7B3FF2;
+            background: #4E008E;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: 'Epilogue', sans-serif;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.2s;
+            margin-top: 8px;
         }
-        
+
         .submit-btn:hover {
-            background: #6B2FE2;
+            background: #3A0068;
         }
-        
+
         .submit-btn:disabled {
-            background: #ccc;
+            background: #BF9BDE;
             cursor: not-allowed;
         }
-        
+
         .success-message {
             display: none;
             padding: 20px;
-            background: #4CAF50;
-            color: white;
-            border-radius: 8px;
+            background: #2CD5C4;
+            color: #1A1B29;
+            border-radius: 10px;
             text-align: center;
             margin-top: 20px;
+            font-weight: 600;
         }
-        
+
         .error-message {
             display: none;
             padding: 20px;
-            background: #f44336;
-            color: white;
-            border-radius: 8px;
+            background: #FF92DA;
+            color: #1A1B29;
+            border-radius: 10px;
             text-align: center;
             margin-top: 20px;
+            font-weight: 600;
         }
-        
+
+        .footer {
+            position: relative;
+            padding: 0 8px;
+        }
+
+        .footer-line {
+            width: 100%;
+            height: 3px;
+            background: #FFE900;
+            margin-bottom: 16px;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-logo {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .sol-mascot {
+            width: 140px;
+            height: auto;
+            margin-bottom: -8px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
+    <div class="page-wrapper">
+        <div class="container">
+            <div class="header">
+                <h1>Habla con Sol</h1>
+                <p>Regístrate y te llamará en segundos.</p>
+            </div>
+
+            <form id="signupForm">
+                <div>
+                    <div class="form-group">
+                        <label for="name">Nombre</label>
+                        <input type="text" id="name" name="name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+51 999 999 999">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Descripción (opcional)</label>
+                        <textarea id="description" name="description" placeholder="Cuéntanos sobre ti o tu empresa..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Registrarme</button>
+
+                <div class="success-message" id="successMessage">
+                    ¡Registro exitoso! Sol te llamará en unos segundos...
+                </div>
+
+                <div class="error-message" id="errorMessage">
+                    Error al registrar. Por favor intenta nuevamente.
+                </div>
+            </form>
         </div>
-        
-        <form id="signupForm">
-            <div>
-                <div class="form-group">
-                    <label for="name">Nombre</label>
-                    <input type="text" id="name" name="name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Correo electrónico</label>
-                    <input type="email" id="email" name="email">
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone">Teléfono</label>
-                    <input type="tel" id="phone" name="phone" placeholder="+51 999 999 999">
-                </div>
-                
-                <div class="form-group">
-                    <label for="description">Descripción (opcional)</label>
-                    <textarea id="description" name="description" placeholder="Cuéntanos sobre ti o tu empresa..."></textarea>
-                </div>
+
+        <div class="footer">
+            <div class="footer-line"></div>
+            <div class="footer-content">
+                <img src="/static/LOGO-yellow.png" alt="Emptor" class="footer-logo">
+                <img src="/static/Sol_4H.png" alt="Sol" class="sol-mascot">
             </div>
-            
-            
-            <button type="submit" class="submit-btn">Registrarme</button>
-            
-            <div class="success-message" id="successMessage">
-                ¡Registro exitoso! Sol te llamará en unos segundos...
-            </div>
-            
-            <div class="error-message" id="errorMessage">
-                Error al registrar. Por favor intenta nuevamente.
-            </div>
-        </form>
+        </div>
     </div>
-    
+
     <script>
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const submitBtn = document.querySelector('.submit-btn');
             const successMsg = document.getElementById('successMessage');
             const errorMsg = document.getElementById('errorMessage');
-            
+
             submitBtn.disabled = true;
             submitBtn.textContent = 'Registrando...';
-            
+
             const formData = new FormData(e.target);
-            
+
             try {
                 const response = await fetch('/signup', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 if (response.ok) {
                     const result = await response.json();
                     e.target.reset();
-                    
+
                     successMsg.style.display = 'block';
                     errorMsg.style.display = 'none';
                     successMsg.textContent = '¡Registro exitoso! Sol te llamará en unos segundos...';
-                    
+
                     setTimeout(() => {
                         successMsg.style.display = 'none';
                     }, 5000);
@@ -217,7 +287,7 @@
             } catch (error) {
                 errorMsg.style.display = 'block';
                 successMsg.style.display = 'none';
-                
+
                 setTimeout(() => {
                     errorMsg.style.display = 'none';
                 }, 5000);

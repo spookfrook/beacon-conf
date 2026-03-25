@@ -25,6 +25,7 @@ import re
 import peewee as pw
 from fastapi import FastAPI, Form, Request, File, UploadFile
 from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import aiofiles
 from livekit import api
@@ -63,6 +64,11 @@ if 'candidate' not in existing_columns:
 
 # FastAPI app
 app = FastAPI()
+
+# Static files
+static_dir = Path(__file__).parent / "static"
+static_dir.mkdir(exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 # Create templates directory and template file
 templates_dir = Path(__file__).parent / "templates"
@@ -785,19 +791,19 @@ async def create_sol_call(signup: Signup):
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html")
 
 @app.get("/video", response_class=HTMLResponse)
 async def video(request: Request):
-    return templates.TemplateResponse("video.html", {"request": request})
+    return templates.TemplateResponse(request, "video.html")
 
 @app.get("/reference", response_class=HTMLResponse)
 async def reference(request: Request):
-    return templates.TemplateResponse("reference.html", {"request": request})
+    return templates.TemplateResponse(request, "reference.html")
 
 @app.get("/call", response_class=HTMLResponse)
 async def call(request: Request):
-    return templates.TemplateResponse("call.html", {"request": request})
+    return templates.TemplateResponse(request, "call.html")
 
 @app.post("/api/call")
 async def initiate_call():
@@ -835,7 +841,7 @@ async def initiate_call():
 
 @app.get("/call-cl", response_class=HTMLResponse)
 async def call_cl(request: Request):
-    return templates.TemplateResponse("call-cl.html", {"request": request})
+    return templates.TemplateResponse(request, "call-cl.html")
 
 @app.post("/api/call-cl")
 async def initiate_call_cl():
@@ -873,7 +879,7 @@ async def initiate_call_cl():
 
 @app.get("/call-named", response_class=HTMLResponse)
 async def call_named(request: Request):
-    return templates.TemplateResponse("call-named.html", {"request": request})
+    return templates.TemplateResponse(request, "call-named.html")
 
 @app.post("/api/call-named")
 async def initiate_call_named(name: str = Form(...)):
@@ -916,7 +922,7 @@ async def initiate_call_named(name: str = Form(...)):
 
 @app.get("/call-number", response_class=HTMLResponse)
 async def call_number(request: Request):
-    return templates.TemplateResponse("call-number.html", {"request": request})
+    return templates.TemplateResponse(request, "call-number.html")
 
 @app.post("/api/call-number")
 async def initiate_call_number(name: str = Form(...), phone: str = Form(...)):
