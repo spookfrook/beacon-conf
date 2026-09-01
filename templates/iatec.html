@@ -324,8 +324,11 @@
             '/static/videos/privacidad.mp4'     // Invasión de privacidad · 1:18
         ];
 
-        // The call to action comes back every other break; the rest rotate behind it.
-        var ROTATION = ['charla', 'sol', 'cobertura', 'verdad'];
+        // A break every couple of videos, and the ring holds every slide so all of them get air.
+        // The call to action sits twice in the ring because it is the only one that asks for
+        // something; giving it every other turn starved the rest, which is what it looked like.
+        var SLIDE_RING = ['cta', 'charla', 'sol', 'cta', 'cobertura', 'verdad'];
+        var VIDEOS_PER_BREAK = 2;
         var SLIDE_MS = 10000;
 
         var player = document.getElementById('player');
@@ -338,8 +341,8 @@
 
         var pausedEl = document.getElementById('paused');
         var videoIndex = 0;
-        var breakCount = 1;   // the screen opens on the call to action, so the first break rotates
-        var rotationIndex = 0;
+        var ringIndex = 1;    // the screen opens on ring[0], so the first break takes the next one
+        var sinceBreak = 0;
         var slideTimer = null;
         var isPaused = false;
 
@@ -381,15 +384,21 @@
             slideTimer = setTimeout(next, SLIDE_MS);
         }
 
+        function playNextVideo() {
+            playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
+        }
+
         function next() {
-            if (player.classList.contains('on')) {
-                var id = (breakCount % 2 === 0)
-                    ? 'cta'
-                    : ROTATION[rotationIndex++ % ROTATION.length];
-                breakCount++;
-                showSlide(id);
+            if (!player.classList.contains('on')) {   // a slide just finished
+                playNextVideo();
+                return;
+            }
+            sinceBreak++;
+            if (sinceBreak < VIDEOS_PER_BREAK) {
+                playNextVideo();
             } else {
-                playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
+                sinceBreak = 0;
+                showSlide(SLIDE_RING[ringIndex++ % SLIDE_RING.length]);
             }
         }
 
