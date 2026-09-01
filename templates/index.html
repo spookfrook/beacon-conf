@@ -108,7 +108,8 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
   font-size:34px; color:var(--indigo);
 }
 .hidden { display:none; }
-.foot { text-align:center; margin-top:22px; color:rgba(255,254,255,.72); font-size:13.5px; }
+.foot { text-align:center; margin-top:22px; font-size:13.5px; }
+.foot a { color:rgba(255,254,255,.72); text-decoration:none; padding:10px 14px; display:inline-block; }
 
 /* Only appears when the totem opened this page, so a visitor on their phone never sees it. */
 .btn-totem {
@@ -212,7 +213,7 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
   </section>
 
   <button class="btn-totem hidden" id="backToTotem">‹ Volver al tótem</button>
-  <p class="foot">Emptor · IA-TEC 2026</p>
+  <p class="foot"><a href="/iatec" id="footTotem">Emptor · IA-TEC 2026</a></p>
 </div>
 
 <script>
@@ -235,16 +236,32 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     if (t) { show(t.dataset.go); }
   });
 
-  // Coming from the totem means this is a tab the loop opened. Closing it drops the staff back
-  // on the loop; if the browser refuses to close it, walk back to the loop instead.
+  // Whoever arrived from the totem gets an explicit way back. Three ways of recognising them,
+  // because one of them always survives: the marker, the referrer, and a note kept for reloads.
   var backBtn = document.getElementById('backToTotem');
-  if (/[?&]from=totem\b/.test(location.search)) {
-    backBtn.classList.remove('hidden');
-    backBtn.addEventListener('click', function () {
-      window.close();
-      setTimeout(function () { window.location.href = '/iatec'; }, 150);
-    });
+  var fromTotem = /[?&]from=totem\b/.test(location.search) ||
+                  /\/iatec\b/.test(document.referrer || '');
+  try {
+    if (fromTotem) { sessionStorage.setItem('fromTotem', '1'); }
+    else if (sessionStorage.getItem('fromTotem') === '1') { fromTotem = true; }
+  } catch (e) { /* private browsing: the marker and referrer still cover it */ }
+
+  function goToTotem() {
+    // Navigate first: it always works. Closing is a bonus for the tab the totem opened.
+    window.location.href = '/iatec';
+    setTimeout(function () { window.close(); }, 60);
   }
+
+  if (fromTotem) {
+    backBtn.classList.remove('hidden');
+    backBtn.addEventListener('click', goToTotem);
+  }
+
+  // Always available, for the case nobody predicted.
+  document.getElementById('footTotem').addEventListener('click', function (e) {
+    e.preventDefault();
+    goToTotem();
+  });
 
   // Mirrors the server list. The server is the one that decides; this just answers faster.
   var FREE = ['gmail.com','googlemail.com','hotmail.com','hotmail.es','hotmail.com.mx','hotmail.com.ar',
