@@ -111,15 +111,26 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
 .foot { text-align:center; margin-top:22px; font-size:13.5px; }
 .foot a { color:rgba(255,254,255,.72); text-decoration:none; padding:10px 14px; display:inline-block; }
 
-/* Only appears when the totem opened this page, so a visitor on their phone never sees it. */
+/* Floating badge back to the loop. Only appears when the totem opened this page, so a visitor
+   on their own phone never sees it. Sol is the button, not decoration beside a label. */
 .btn-totem {
-  display:block; width:100%; margin-top:18px;
-  background:transparent; color:rgba(255,254,255,.85);
-  border:2px solid rgba(255,254,255,.35); border-radius:14px;
-  font-family:'Epilogue',sans-serif; font-weight:600; font-size:16px;
-  padding:16px 20px; cursor:pointer;
+  position:fixed; right:18px; bottom:18px; z-index:50;
+  display:flex; align-items:center; gap:12px;
+  padding:9px 20px 9px 9px;
+  background:var(--base); border:2px solid var(--indigo); border-radius:999px;
+  box-shadow:0 10px 30px rgba(16,24,32,.28);
+  font-family:'Epilogue',sans-serif; font-weight:600; font-size:15px; color:var(--indigo);
+  cursor:pointer; transition:transform .1s ease, box-shadow .1s ease;
 }
-.btn-totem:active { transform:scale(.985); }
+.btn-totem:hover { transform:translateY(-2px); box-shadow:0 14px 36px rgba(16,24,32,.34); }
+.btn-totem:active { transform:translateY(0) scale(.97); }
+.btn-totem:focus-visible { outline:3px solid var(--aqua); outline-offset:3px; }
+/* Sol sits straight on the pill: boxing it in a disc clipped the rays. */
+.btn-totem .sol-badge {
+  display:flex; align-items:center; justify-content:center; flex:0 0 58px;
+}
+.btn-totem .sol-badge img { width:58px; display:block; }
+@media (max-width:380px) { .btn-totem .label { display:none; } .btn-totem { padding:9px; } }
 </style>
 </head>
 <body>
@@ -212,7 +223,10 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     </div>
   </section>
 
-  <button class="btn-totem hidden" id="backToTotem">‹ Volver al tótem</button>
+  <button class="btn-totem hidden" id="backToTotem" aria-label="Volver al tótem">
+    <span class="sol-badge"><img src="/static/Sol_4H.png" alt=""></span>
+    <span class="label">Volver al tótem</span>
+  </button>
   <p class="foot"><a href="/iatec" id="footTotem">Emptor · IA-TEC 2026</a></p>
 </div>
 
