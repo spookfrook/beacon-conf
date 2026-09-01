@@ -308,7 +308,11 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     window.location.href = '/iatec';
   }
 
-  if (fromTotem) {
+  // Inside the loop's frame the parent already shows the switch, so this page keeps its own
+  // hidden: two badges stacked in the same corner would just fight each other.
+  var embedded = /[?&]embed=1\b/.test(location.search);
+
+  if (fromTotem && !embedded) {
     backBtn.classList.remove('hidden');
     backBtn.addEventListener('click', goToTotem);
   }

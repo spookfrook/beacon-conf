@@ -212,6 +212,20 @@
             .mode-switch:hover { transform: none; }
         }
 
+        /* The form lives here as a same-origin frame instead of a separate page. Swapping to it
+           never navigates the top document, so fullscreen is never handed back to Chrome. */
+        #demoFrame {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: var(--indigo);
+            display: none;
+            z-index: 90;
+        }
+        #demoFrame.on { display: block; }
+
         .tap-zone { position: absolute; z-index: 20; }
         .tap-left   { top: 0; bottom: 0; left: 0;  width: 22%; }
         .tap-right  { top: 0; bottom: 0; right: 0; width: 22%; }
@@ -311,9 +325,11 @@
         <div class="muted-hint" id="mutedHint">Toca la pantalla para activar el sonido</div>
     </div>
 
-    <button class="mode-switch" id="toDemo" aria-label="Ir al modo demo">
+    <iframe id="demoFrame" title="Formulario del stand"></iframe>
+
+    <button class="mode-switch" id="toDemo" aria-label="Cambiar de modo">
         <span class="sol-badge"><img src="/static/Sol_4H.png" alt=""></span>
-        <span>Modo demo</span>
+        <span id="switchLabel">Modo demo</span>
     </button>
 
     <script>
@@ -463,14 +479,42 @@
         document.getElementById('tapCenter').addEventListener('click', function (e) {
             e.stopPropagation(); onTouch(); togglePause();
         });
-        // Switching modes navigates in place, both ways, so the two badges are a toggle and no
-        // stray tabs pile up on the totem. The marker tells the form where it came from.
-        function goToDemo() { window.location.href = '/?from=totem'; }
+        // Switching modes shows or hides the frame. Nothing navigates, so whatever fullscreen the
+        // panel granted stays granted: this is the only way the browser bar never comes back
+        // without installing the site as an app.
+        var demoFrame = document.getElementById('demoFrame');
+        var switchLabel = document.getElementById('switchLabel');
+        var demoOn = false;
+
+        function showDemo() {
+            if (!demoFrame.getAttribute('src')) { demoFrame.src = '/?embed=1'; }
+            demoFrame.classList.add('on');
+            demoOn = true;
+            switchLabel.textContent = 'Modo video';
+            clearTimeout(slideTimer);          // hold the loop while the form is up front
+            player.pause();
+        }
+
+        function showVideo() {
+            demoFrame.classList.remove('on');
+            demoOn = false;
+            switchLabel.textContent = 'Modo demo';
+            if (isPaused) { return; }
+            if (player.classList.contains('on')) { player.play().catch(function () {}); }
+            else { slideTimer = setTimeout(next, SLIDE_MS); }
+        }
 
         document.getElementById('toDemo').addEventListener('click', function (e) {
-            e.stopPropagation(); goToDemo();
+            e.stopPropagation();
+            goFullscreen();
+            if (demoOn) { showVideo(); } else { showDemo(); }
         });
         document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+        // Registering this is what lets Chrome install the site as an app rather than a shortcut.
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+        }
 
         window.addEventListener('resize', fitStage);
         fitStage();

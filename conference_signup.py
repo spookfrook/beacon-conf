@@ -842,6 +842,16 @@ async def video(request: Request):
 async def iatec(request: Request):
     return templates.TemplateResponse(request, "iatec.html")
 
+@app.get("/sw.js")
+async def service_worker():
+    """Served from the root so its scope covers the whole site, which is what Chrome needs
+    before it will install this as an app instead of a browser shortcut."""
+    return FileResponse(
+        static_dir / "sw.js",
+        media_type="application/javascript",
+        headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-cache"},
+    )
+
 @app.get("/reference", response_class=HTMLResponse)
 async def reference(request: Request):
     return templates.TemplateResponse(request, "reference.html")
