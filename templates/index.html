@@ -1,301 +1,310 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sol by Emptor - HR Tech Day 2026</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,400;0,500;0,600;0,700;1,400&family=MuseoModerno:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sol by Emptor · IA-TEC 2026</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&family=MuseoModerno:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --indigo:#4E008E; --indigo-deep:#2B034C; --aqua:#30E3D1;
+  --action:#FFE977; --ink:#101820; --base:#FFFEFF; --lilac:#FAF3FF;
+  --line:#E1E2E5; --muted:#585D63;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Epilogue',system-ui,sans-serif;
+  background:var(--indigo);
+  color:var(--ink);
+  min-height:100vh;
+  padding:28px 18px 48px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap { max-width:520px; margin:0 auto; }
 
-        body {
-            font-family: 'Epilogue', -apple-system, sans-serif;
-            background: #4E008E;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            position: relative;
-            overflow: hidden;
-        }
+.brand { display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; }
+.brand img.logo { height:34px; }
+.brand img.sol { height:52px; }
 
-        /* Pattern overlay */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -15%;
-            right: -10%;
-            width: 70%;
-            height: 70%;
-            background: url('/static/PATRON-CIRCULOS-white.png') no-repeat center;
-            background-size: contain;
-            opacity: 0.04;
-            pointer-events: none;
-        }
+.card {
+  background:var(--base);
+  border-radius:22px;
+  padding:32px 26px;
+  box-shadow:0 18px 50px rgba(16,24,32,.20);
+}
+h1 {
+  font-family:'MuseoModerno',system-ui,sans-serif;
+  font-weight:700; font-size:34px; line-height:1.12;
+  letter-spacing:-.02em; color:var(--indigo); margin-bottom:10px;
+}
+h2 {
+  font-family:'MuseoModerno',system-ui,sans-serif;
+  font-weight:700; font-size:26px; line-height:1.15;
+  letter-spacing:-.01em; color:var(--indigo); margin-bottom:8px;
+}
+.sub { color:var(--muted); font-size:16px; line-height:1.5; margin-bottom:24px; }
 
-        .page-wrapper {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 520px;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
+.actions { display:flex; flex-direction:column; gap:12px; }
+.btn {
+  display:block; width:100%; text-align:center; text-decoration:none;
+  font-family:'Epilogue',sans-serif; font-weight:600; font-size:17px;
+  padding:18px 20px; border-radius:14px; border:2px solid transparent;
+  cursor:pointer; transition:transform .08s ease;
+}
+.btn:active { transform:scale(.985); }
+.btn-primary { background:var(--action); color:var(--ink); }
+.btn-secondary { background:var(--base); color:var(--indigo); border-color:var(--indigo); }
+.btn-quiet {
+  background:transparent; color:var(--muted); border-color:var(--line);
+  font-weight:500; font-size:15px; padding:14px 20px;
+}
+.btn:focus-visible { outline:3px solid var(--aqua); outline-offset:2px; }
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            padding: 48px;
-        }
+.back {
+  background:none; border:none; color:var(--muted); font-family:'Epilogue',sans-serif;
+  font-size:15px; font-weight:500; cursor:pointer; padding:6px 0; margin-bottom:14px;
+}
 
-        .header {
-            text-align: left;
-            margin-bottom: 32px;
-        }
+ol.steps { list-style:none; counter-reset:s; display:flex; flex-direction:column; gap:16px; margin:6px 0 26px; }
+ol.steps li { counter-increment:s; display:flex; gap:14px; align-items:flex-start; font-size:16px; line-height:1.45; }
+ol.steps li::before {
+  content:counter(s);
+  flex:0 0 30px; height:30px; border-radius:50%;
+  background:var(--indigo); color:var(--base);
+  font-family:'MuseoModerno',sans-serif; font-weight:700; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+}
 
-        .header h1 {
-            font-family: 'MuseoModerno', cursive;
-            font-size: 40px;
-            font-weight: 700;
-            color: #4E008E;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-        }
+label { display:block; font-weight:600; font-size:15px; margin-bottom:7px; color:var(--ink); }
+input[type=email], input[type=text] {
+  width:100%; font-family:'Epilogue',sans-serif; font-size:17px;
+  padding:15px 16px; border:2px solid var(--line); border-radius:12px; background:var(--base);
+}
+input:focus { outline:none; border-color:var(--indigo); }
+.field { margin-bottom:20px; }
+.hint { font-size:13.5px; color:var(--muted); margin-top:7px; }
+.err { font-size:14px; color:#B3261E; margin-top:8px; font-weight:500; display:none; }
+.err.on { display:block; }
 
-        .header p {
-            color: #666;
-            font-size: 16px;
-        }
+fieldset { border:none; margin-bottom:20px; }
+legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); }
+.chips { display:flex; flex-wrap:wrap; gap:9px; }
+.chip { position:relative; }
+.chip input { position:absolute; opacity:0; width:0; height:0; }
+.chip span {
+  display:block; padding:11px 15px; border-radius:999px;
+  border:2px solid var(--line); font-size:15px; cursor:pointer; user-select:none;
+}
+.chip input:checked + span { background:var(--lilac); border-color:var(--indigo); color:var(--indigo); font-weight:600; }
+.chip input:focus-visible + span { outline:3px solid var(--aqua); outline-offset:2px; }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #1A1B29;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        textarea {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: 'Epilogue', sans-serif;
-            transition: border-color 0.2s;
-            background: #fff;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="tel"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #4E008E;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 16px;
-            background: #4E008E;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            font-family: 'Epilogue', sans-serif;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 8px;
-        }
-
-        .submit-btn:hover {
-            background: #3A0068;
-        }
-
-        .submit-btn:disabled {
-            background: #BF9BDE;
-            cursor: not-allowed;
-        }
-
-        .success-message {
-            display: none;
-            padding: 20px;
-            background: #2CD5C4;
-            color: #1A1B29;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 20px;
-            font-weight: 600;
-        }
-
-        .error-message {
-            display: none;
-            padding: 20px;
-            background: #FF92DA;
-            color: #1A1B29;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 20px;
-            font-weight: 600;
-        }
-
-        .footer {
-            position: relative;
-            padding: 0 8px;
-        }
-
-        .footer-line {
-            width: 100%;
-            height: 3px;
-            background: #FFE900;
-            margin-bottom: 16px;
-        }
-
-        .footer-content {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-        }
-
-        .footer-left {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .footer-logo {
-            height: 48px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .sol-mascot {
-            width: 140px;
-            height: auto;
-            margin-bottom: -8px;
-        }
-    </style>
+.done { text-align:center; }
+.done .tick {
+  width:72px; height:72px; border-radius:50%; background:var(--lilac);
+  display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+  font-size:34px; color:var(--indigo);
+}
+.hidden { display:none; }
+.foot { text-align:center; margin-top:22px; color:rgba(255,254,255,.72); font-size:13.5px; }
+</style>
 </head>
 <body>
-    <div class="page-wrapper">
-        <div class="container">
-            <div class="header">
-                <h1>Habla con Sol</h1>
-                <p>Regístrate y te llamará en segundos.</p>
-            </div>
+<div class="wrap">
+  <div class="brand">
+    <img class="logo" src="/static/LOGO-yellow.png" alt="Emptor">
+    <img class="sol" src="/static/Sol_4H.png" alt="Sol">
+  </div>
 
-            <form id="signupForm">
-                <div>
-                    <div class="form-group">
-                        <label for="name">Nombre</label>
-                        <input type="text" id="name" name="name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Correo electrónico</label>
-                        <input type="email" id="email" name="email">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">Teléfono</label>
-                        <input type="tel" id="phone" name="phone" placeholder="+51 999 999 999">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description">Descripción (opcional)</label>
-                        <textarea id="description" name="description" placeholder="Cuéntanos sobre ti o tu empresa..."></textarea>
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn">Registrarme</button>
-
-                <div class="success-message" id="successMessage">
-                    ¡Registro exitoso! Sol te llamará en unos segundos...
-                </div>
-
-                <div class="error-message" id="errorMessage">
-                    Error al registrar. Por favor intenta nuevamente.
-                </div>
-            </form>
-        </div>
-
-        <div class="footer">
-            <div class="footer-line"></div>
-            <div class="footer-content">
-                <img src="/static/LOGO-yellow.png" alt="Emptor" class="footer-logo">
-                <img src="/static/Sol_4H.png" alt="Sol" class="sol-mascot">
-            </div>
-        </div>
+  <!-- HOME -->
+  <section class="card" id="view-home">
+    <h1>Tú, tu gente.<br>Yo, el papeleo.</h1>
+    <p class="sub">Soy Sol. Puedo contarte de viva voz qué hago, o me dejas tu correo y te escribimos después.</p>
+    <div class="actions">
+      <button class="btn btn-primary" data-go="cabina">Hablar conmigo en la cabina</button>
+      <button class="btn btn-secondary" data-go="contacto">Dejar mi contacto</button>
+      <a class="btn btn-quiet" id="dashLink" href="https://demodash-mkt.up.railway.app" target="_blank" rel="noopener">Ver el dashboard por dentro</a>
     </div>
+  </section>
 
-    <script>
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+  <!-- CABINA -->
+  <section class="card hidden" id="view-cabina">
+    <button class="back" data-go="home">‹ Volver</button>
+    <h2>Hablamos dos minutos</h2>
+    <p class="sub">La llamada entra a tu propio celular, así que no compartes tu número con nadie más que conmigo.</p>
+    <ol class="steps">
+      <li>Entra a la cabina roja.</li>
+      <li>Escanea el QR que está adentro.</li>
+      <li>Se te abre WhatsApp: completa tu nombre, empresa y cargo.</li>
+      <li>Toca «Llamar a Sol».</li>
+      <li>Contesta y conversamos. Dos minutos, sin libreto.</li>
+    </ol>
+    <div class="actions">
+      <button class="btn btn-secondary" data-go="contacto">Prefiero dejar mi contacto</button>
+    </div>
+  </section>
 
-            const submitBtn = document.querySelector('.submit-btn');
-            const successMsg = document.getElementById('successMessage');
-            const errorMsg = document.getElementById('errorMessage');
+  <!-- CONTACTO -->
+  <section class="card hidden" id="view-contacto">
+    <button class="back" data-go="home">‹ Volver</button>
+    <h2>Déjame tu correo</h2>
+    <p class="sub">Con eso basta. Si quieres, marca qué te interesa y te escribimos sobre eso y no sobre otra cosa.</p>
 
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Registrando...';
+    <form id="leadForm" novalidate>
+      <div class="field">
+        <label for="email">Correo de trabajo</label>
+        <input type="email" id="email" name="email" inputmode="email" autocomplete="email"
+               autocapitalize="off" spellcheck="false" placeholder="nombre@tuempresa.com" required>
+        <p class="hint">Solo correos corporativos. Los personales no entran.</p>
+        <p class="err" id="emailErr"></p>
+      </div>
 
-            const formData = new FormData(e.target);
+      <div class="field">
+        <label for="name">Tu nombre</label>
+        <input type="text" id="name" name="name" autocomplete="name" placeholder="Se completa solo">
+        <p class="hint">Lo saco de tu correo. Corrígelo si le erré.</p>
+      </div>
 
-            try {
-                const response = await fetch('/signup', {
-                    method: 'POST',
-                    body: formData
-                });
+      <fieldset>
+        <legend>Verificaciones</legend>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" name="interes" value="Penales y sanciones"><span>Penales y sanciones</span></label>
+          <label class="chip"><input type="checkbox" name="interes" value="Identidad y documentos"><span>Identidad y documentos</span></label>
+          <label class="chip"><input type="checkbox" name="interes" value="Historial de manejo"><span>Historial de manejo</span></label>
+        </div>
+      </fieldset>
 
-                if (response.ok) {
-                    const result = await response.json();
-                    e.target.reset();
+      <fieldset>
+        <legend>Sol</legend>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" name="interes" value="Referencias laborales"><span>Referencias laborales</span></label>
+          <label class="chip"><input type="checkbox" name="interes" value="Screening y entrevistas"><span>Screening y entrevistas</span></label>
+          <label class="chip"><input type="checkbox" name="interes" value="Reportes y transcripciones"><span>Reportes y transcripciones</span></label>
+        </div>
+      </fieldset>
 
-                    successMsg.style.display = 'block';
-                    errorMsg.style.display = 'none';
-                    successMsg.textContent = '¡Registro exitoso! Sol te llamará en unos segundos...';
+      <button type="submit" class="btn btn-primary" id="submitBtn">Enviar</button>
+    </form>
+  </section>
 
-                    setTimeout(() => {
-                        successMsg.style.display = 'none';
-                    }, 5000);
-                } else {
-                    throw new Error('Registration failed');
-                }
-            } catch (error) {
-                errorMsg.style.display = 'block';
-                successMsg.style.display = 'none';
+  <!-- LISTO -->
+  <section class="card hidden" id="view-done">
+    <div class="done">
+      <div class="tick">✓</div>
+      <h2 id="doneName">Anotado</h2>
+      <p class="sub" style="margin-bottom:22px">Te escribimos pronto. Si quieres oírme antes, la cabina está ahí mismo.</p>
+      <div class="actions">
+        <button class="btn btn-secondary" data-go="cabina">Cómo hablar conmigo</button>
+      </div>
+    </div>
+  </section>
 
-                setTimeout(() => {
-                    errorMsg.style.display = 'none';
-                }, 5000);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Registrarme';
-            }
-        });
-    </script>
+  <p class="foot">Emptor · IA-TEC 2026</p>
+</div>
+
+<script>
+(function () {
+  var views = {
+    home: document.getElementById('view-home'),
+    cabina: document.getElementById('view-cabina'),
+    contacto: document.getElementById('view-contacto'),
+    done: document.getElementById('view-done')
+  };
+
+  function show(id) {
+    Object.keys(views).forEach(function (k) { views[k].classList.add('hidden'); });
+    views[id].classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-go]');
+    if (t) { show(t.dataset.go); }
+  });
+
+  // Mirrors the server list. The server is the one that decides; this just answers faster.
+  var FREE = ['gmail.com','googlemail.com','hotmail.com','hotmail.es','hotmail.com.mx','hotmail.com.ar',
+    'hotmail.com.pe','outlook.com','outlook.es','live.com','live.com.mx','msn.com','yahoo.com','yahoo.es',
+    'yahoo.com.mx','yahoo.com.ar','yahoo.com.pe','ymail.com','icloud.com','me.com','mac.com','aol.com',
+    'proton.me','protonmail.com','pm.me','zoho.com','gmx.com','gmx.es','yandex.com','mail.com','mail.ru',
+    'terra.com.pe','terra.com.mx','qq.com','163.com','naver.com','duck.com','tutanota.com'];
+
+  var emailEl = document.getElementById('email');
+  var nameEl = document.getElementById('name');
+  var errEl = document.getElementById('emailErr');
+  var form = document.getElementById('leadForm');
+  var submitBtn = document.getElementById('submitBtn');
+  var nameTouched = false;
+
+  nameEl.addEventListener('input', function () { nameTouched = true; });
+
+  function nameFromEmail(email) {
+    var local = (email.split('@')[0] || '').replace(/\d+/g, ' ');
+    return local.split(/[._\-+]+/).filter(Boolean).map(function (p) {
+      return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+    }).join(' ');
+  }
+
+  emailEl.addEventListener('input', function () {
+    errEl.classList.remove('on');
+    if (!nameTouched) { nameEl.value = nameFromEmail(emailEl.value.trim()); }
+  });
+
+  function localError(email) {
+    var m = /^[^@\s]+@([^@\s]+\.[^@\s]+)$/.exec(email);
+    if (!m) { return 'Ese correo no parece válido.'; }
+    if (FREE.indexOf(m[1].toLowerCase()) !== -1) { return 'Necesitamos tu correo de trabajo, no uno personal.'; }
+    return null;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = emailEl.value.trim();
+    var problem = localError(email);
+    if (problem) {
+      errEl.textContent = problem;
+      errEl.classList.add('on');
+      emailEl.focus();
+      return;
+    }
+
+    var picked = [].slice.call(form.querySelectorAll('input[name=interes]:checked'))
+                   .map(function (c) { return c.value; }).join(' · ');
+
+    var body = new FormData();
+    body.append('email', email);
+    body.append('name', nameEl.value.trim());
+    body.append('interests', picked);
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando…';
+
+    fetch('/api/lead', { method: 'POST', body: body })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar';
+        if (!data.success) {
+          errEl.textContent = data.error || 'No se pudo guardar. Intenta de nuevo.';
+          errEl.classList.add('on');
+          return;
+        }
+        var first = (data.name || '').split(' ')[0];
+        document.getElementById('doneName').textContent = first ? ('Anotado, ' + first) : 'Anotado';
+        form.reset();
+        nameTouched = false;
+        show('done');
+      })
+      .catch(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar';
+        errEl.textContent = 'Se cayó la conexión. Intenta otra vez.';
+        errEl.classList.add('on');
+      });
+  });
+})();
+</script>
 </body>
 </html>

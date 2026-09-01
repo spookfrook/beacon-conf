@@ -48,8 +48,10 @@ class Signup(BaseModelDB):
     voice_memo_path = pw.CharField(null=True)
     talk_to_sol = pw.BooleanField(default=False)
     want_report_example = pw.BooleanField(default=False)
+    interests = pw.TextField(null=True)
+    source = pw.CharField(null=True)
     created_at = pw.DateTimeField(default=datetime.now)
-    
+
     class Meta:
         table_name = "signups"
 
@@ -61,6 +63,45 @@ db.create_tables([Signup])
 existing_columns = [column.name for column in db.get_columns('signups')]
 if 'candidate' not in existing_columns:
     db.execute_sql("ALTER TABLE signups ADD COLUMN candidate TEXT")
+if 'interests' not in existing_columns:
+    db.execute_sql("ALTER TABLE signups ADD COLUMN interests TEXT")
+if 'source' not in existing_columns:
+    db.execute_sql("ALTER TABLE signups ADD COLUMN source TEXT")
+
+# Booth leads are only worth capturing with a work address, so the free providers are refused.
+# Checked server-side too: the browser check is a courtesy, not the gate.
+FREE_EMAIL_DOMAINS = {
+    "gmail.com", "googlemail.com", "hotmail.com", "hotmail.es", "hotmail.com.mx",
+    "hotmail.com.ar", "hotmail.com.pe", "outlook.com", "outlook.es", "live.com",
+    "live.com.mx", "msn.com", "yahoo.com", "yahoo.es", "yahoo.com.mx", "yahoo.com.ar",
+    "yahoo.com.pe", "ymail.com", "icloud.com", "me.com", "mac.com", "aol.com",
+    "proton.me", "protonmail.com", "pm.me", "zoho.com", "gmx.com", "gmx.es",
+    "yandex.com", "mail.com", "mail.ru", "terra.com.pe", "terra.com.mx",
+    "speedy.com.ar", "fibertel.com.ar", "vtr.net", "movistar.es", "telefonica.net",
+    "qq.com", "163.com", "naver.com", "duck.com", "tutanota.com", "hushmail.com",
+}
+
+EMAIL_RE = re.compile(r"^[^@\s]+@([^@\s]+\.[^@\s]+)$")
+
+
+def corporate_email_error(email: str):
+    """Returns a human message when the address is not usable, or None when it is fine."""
+    email = (email or "").strip().lower()
+    match = EMAIL_RE.match(email)
+    if not match:
+        return "Ese correo no parece válido."
+    domain = match.group(1)
+    if domain in FREE_EMAIL_DOMAINS:
+        return "Necesitamos tu correo de trabajo, no uno personal."
+    return None
+
+
+def name_from_email(email: str) -> str:
+    """Turns juan.perez@acme.com into 'Juan Perez'. Left editable in the form for the odd case."""
+    local = (email or "").split("@")[0]
+    local = re.sub(r"\d+", " ", local)
+    parts = [p for p in re.split(r"[._\-+]+", local) if p]
+    return " ".join(p.capitalize() for p in parts)
 
 # FastAPI app
 app = FastAPI()
@@ -999,6 +1040,39 @@ async def get_voice_memo(signup_id: str, token: str):
         )
     except Signup.DoesNotExist:
         return HTMLResponse("Signup not found", status_code=404)
+
+@app.post("/api/lead")
+async def capture_lead(
+    email: str = Form(""),
+    name: str = Form(""),
+    interests: str = Form(""),
+):
+    """Booth lead capture: a work email is all we ask for, interests are optional."""
+    email = (email or "").strip()
+    error = corporate_email_error(email)
+    if error:
+        return {"success": False, "error": error}
+
+    lead = Signup.create(
+        name=(name or "").strip() or name_from_email(email),
+        email=email.lower(),
+        phone=None,
+        candidate=None,
+        description=None,
+        voice_memo_path=None,
+        talk_to_sol=False,
+        want_report_example=False,
+        interests=(interests or "").strip() or None,
+        source="iatec-2026",
+    )
+
+    try:
+        await send_signup_email(lead)
+    except Exception as exc:  # a failed notification must not cost us the lead
+        print(f"lead {lead.id} saved but notification failed: {exc}")
+
+    return {"success": True, "id": lead.id, "name": lead.name}
+
 
 @app.post("/signup")
 async def signup(
