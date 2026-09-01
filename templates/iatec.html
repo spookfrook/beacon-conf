@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emptor · IA-TEC 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&family=MuseoModerno:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --indigo: #4E008E;
+            --aqua: #30E3D1;
+            --action: #FFE977;
+            --ink: #101820;
+            --base: #FFFEFF;
+            --lilac: #FAF3FF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+
+        /* Design canvas is a fixed 1080x1920; it is scaled to whatever the totem reports. */
+        #stage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1080px;
+            height: 1920px;
+            transform-origin: top left;
+            background: #000;
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        video.on { display: block; }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 120px 90px;
+        }
+        .slide.on { display: flex; }
+
+        .kicker {
+            font-family: 'Epilogue', system-ui, sans-serif;
+            font-weight: 600;
+            font-size: 40px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* MuseoModerno descenders clip below ~1.05 line-height at this size. */
+        h1 {
+            font-family: 'MuseoModerno', system-ui, sans-serif;
+            font-weight: 700;
+            font-size: 128px;
+            line-height: 1.06;
+            letter-spacing: -3px;
+        }
+
+        h2 {
+            font-family: 'MuseoModerno', system-ui, sans-serif;
+            font-weight: 500;
+            font-size: 92px;
+            line-height: 1.12;
+            letter-spacing: -2px;
+        }
+
+        p {
+            font-family: 'Epilogue', system-ui, sans-serif;
+            font-weight: 400;
+            font-size: 46px;
+            line-height: 1.35;
+        }
+
+        .logo { width: 340px; }
+        .logo-row { display: flex; align-items: flex-end; justify-content: space-between; }
+
+        /* --- Slide skins --- */
+        .s-indigo { background: var(--indigo); color: var(--base); }
+        .s-base   { background: var(--base);   color: var(--indigo); }
+        .s-lilac  { background: var(--lilac);  color: var(--indigo); }
+
+        .pattern {
+            position: absolute;
+            right: -180px;
+            bottom: -180px;
+            width: 900px;
+            opacity: 0.10;
+            pointer-events: none;
+        }
+
+        /* CTA slide: Action Yellow appears only where there is a next step. */
+        .cta-chip {
+            display: inline-block;
+            background: var(--action);
+            color: var(--ink);
+            font-family: 'Epilogue', system-ui, sans-serif;
+            font-weight: 600;
+            font-size: 44px;
+            padding: 28px 44px;
+            border-radius: 999px;
+        }
+
+        .qr {
+            width: 760px;
+            align-self: center;
+            display: block;
+        }
+
+        .sol { width: 420px; }
+
+        .accent-rule {
+            width: 180px;
+            height: 12px;
+            background: var(--aqua);
+            border-radius: 999px;
+        }
+
+        .muted-hint {
+            position: absolute;
+            bottom: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Epilogue', system-ui, sans-serif;
+            font-size: 30px;
+            color: rgba(255,255,255,0.75);
+            background: rgba(16,24,32,0.55);
+            padding: 16px 32px;
+            border-radius: 999px;
+            display: none;
+            z-index: 30;
+        }
+        .muted-hint.on { display: block; }
+
+        .tap-zone { position: absolute; top: 0; bottom: 0; z-index: 20; }
+        .tap-left  { left: 0;  width: 22%; }
+        .tap-right { right: 0; width: 22%; }
+    </style>
+</head>
+<body>
+    <div id="stage">
+        <video id="player" playsinline></video>
+
+        <!-- CTA: the only slide that carries Action Yellow, because it is the only one that asks for a next step. -->
+        <section class="slide s-base" data-slide="cta">
+            <div>
+                <h1>Tú, tu gente.<br>Yo, el papeleo.</h1>
+                <p style="margin-top:36px">Soy Sol. Entra a la cabina, levanta el teléfono y hablamos dos minutos.</p>
+            </div>
+            <img class="qr" src="/static/qr-sol.png" alt="Escanea para hablar con Sol">
+            <div class="logo-row">
+                <span class="cta-chip">Escanea y toca «Llamar a Sol»</span>
+            </div>
+        </section>
+
+        <section class="slide s-indigo" data-slide="charla">
+            <img class="pattern" src="/static/PATRON-CIRCULOS-white.png" alt="">
+            <div class="kicker" style="color:var(--aqua)">Hoy · 16:15</div>
+            <div>
+                <div class="accent-rule" style="margin-bottom:44px"></div>
+                <h2>Me rodeé de agentes para volver a la gente.</h2>
+                <p style="margin-top:40px">Yusef Simon · Emptor</p>
+            </div>
+            <div class="logo-row">
+                <img class="logo" src="/static/LOGO-yellow.png" alt="Emptor">
+            </div>
+        </section>
+
+        <!-- Sol leads this slide, so no pattern here. -->
+        <section class="slide s-lilac" data-slide="sol">
+            <div class="kicker" style="color:var(--indigo)">Sol by Emptor</div>
+            <div>
+                <img class="sol" src="/static/Sol_4H.png" alt="Sol" style="margin-bottom:56px">
+                <h2>Sol llama, pregunta y te trae la referencia.</h2>
+                <p style="margin-top:40px">El trabajo de RR. HH. no debería ser perseguir a nadie.</p>
+            </div>
+            <div class="logo-row"></div>
+        </section>
+
+        <section class="slide s-indigo" data-slide="cobertura">
+            <img class="pattern" src="/static/PATRON-CIRCULOS-white.png" alt="">
+            <div class="kicker" style="color:var(--aqua)">Background checks</div>
+            <div>
+                <div class="accent-rule" style="margin-bottom:44px"></div>
+                <h2>Verificamos antecedentes en toda LatAm.</h2>
+            </div>
+            <div class="logo-row">
+                <img class="logo" src="/static/LOGO-yellow.png" alt="Emptor">
+            </div>
+        </section>
+
+        <section class="slide s-base" data-slide="verdad">
+            <div class="kicker" style="color:var(--indigo)">Emptor</div>
+            <div>
+                <h1>La verdad es la base de la confianza.</h1>
+            </div>
+            <div class="logo-row">
+                <p style="font-weight:600">emptor.io/sol</p>
+            </div>
+        </section>
+
+        <div class="tap-zone tap-left"  id="tapLeft"></div>
+        <div class="tap-zone tap-right" id="tapRight"></div>
+        <div class="muted-hint" id="mutedHint">Toca la pantalla para el sonido</div>
+    </div>
+
+    <script>
+    (function () {
+        var CDN = 'https://res.cloudinary.com/dsbzveh0y/video/upload/f_auto,q_auto/';
+
+        // Reel curated against Comco's pilot performance data: the strongest pieces stay,
+        // Sycophancy and the 1:33 screen demo are out.
+        var VIDEOS = [
+            CDN + 'v1758064164/4_cehsv0.mp4',   // I Love Culture · 0:24
+            CDN + 'v1758064163/3_r9pdtc.mp4',   // ¿Qué prefieres? · 0:27
+            '/static/videos/ghostear.mp4',      // Maneras de Ghostear · 0:30
+            CDN + 'v1758064165/2_mexsbf.mp4',   // Podcast · 0:53
+            CDN + 'v1760014766/6_zvr36c.mp4',   // Ella es Lucía · 1:00
+            '/static/videos/privacidad.mp4'     // Invasión de privacidad · 1:18
+        ];
+
+        // The call to action comes back every other break; the rest rotate behind it.
+        var ROTATION = ['charla', 'sol', 'cobertura', 'verdad'];
+        var SLIDE_MS = 8000;
+
+        var player = document.getElementById('player');
+        var stage = document.getElementById('stage');
+        var hint = document.getElementById('mutedHint');
+        var slides = {};
+        Array.prototype.forEach.call(document.querySelectorAll('.slide'), function (el) {
+            slides[el.dataset.slide] = el;
+        });
+
+        var videoIndex = 0;
+        var breakCount = 0;
+        var rotationIndex = 0;
+        var slideTimer = null;
+        var soundBlocked = false;
+
+        function fitStage() {
+            var scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+            stage.style.transform = 'translate(' +
+                ((window.innerWidth - 1080 * scale) / 2) + 'px,' +
+                ((window.innerHeight - 1920 * scale) / 2) + 'px) scale(' + scale + ')';
+        }
+
+        function clearScreen() {
+            clearTimeout(slideTimer);
+            player.classList.remove('on');
+            Object.keys(slides).forEach(function (k) { slides[k].classList.remove('on'); });
+        }
+
+        // Try with sound; if the browser refuses, fall back to muted so the totem is never dark.
+        function playVideo(url) {
+            clearScreen();
+            player.classList.add('on');
+            player.src = url;
+            player.muted = soundBlocked;
+            player.play().catch(function () {
+                soundBlocked = true;
+                hint.classList.add('on');
+                player.muted = true;
+                player.play().catch(function () { next(); });
+            });
+        }
+
+        function showSlide(id) {
+            clearScreen();
+            slides[id].classList.add('on');
+            slideTimer = setTimeout(next, SLIDE_MS);
+        }
+
+        function next() {
+            if (player.classList.contains('on')) {
+                var id = (breakCount % 2 === 0)
+                    ? 'cta'
+                    : ROTATION[rotationIndex++ % ROTATION.length];
+                breakCount++;
+                showSlide(id);
+            } else {
+                playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
+            }
+        }
+
+        player.addEventListener('ended', next);
+        player.addEventListener('error', next);
+
+        // First touch recovers the sound the autoplay policy took away.
+        function onTouch() {
+            if (soundBlocked) {
+                soundBlocked = false;
+                player.muted = false;
+                hint.classList.remove('on');
+            }
+        }
+        document.addEventListener('click', onTouch);
+        document.getElementById('tapLeft').addEventListener('click', function (e) {
+            e.stopPropagation(); onTouch();
+            videoIndex = (videoIndex - 2 + VIDEOS.length) % VIDEOS.length;
+            playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
+        });
+        document.getElementById('tapRight').addEventListener('click', function (e) {
+            e.stopPropagation(); onTouch();
+            playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
+        });
+        document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+        window.addEventListener('resize', fitStage);
+        fitStage();
+
+        // #cta, #charla, … freezes one slide on screen for checking it on the totem.
+        var pinned = location.hash.replace('#', '');
+        if (slides[pinned]) {
+            clearScreen();
+            slides[pinned].classList.add('on');
+            return;
+        }
+
+        playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
+    })();
+    </script>
+</body>
+</html>

@@ -797,6 +797,10 @@ async def index(request: Request):
 async def video(request: Request):
     return templates.TemplateResponse(request, "video.html")
 
+@app.get("/iatec", response_class=HTMLResponse)
+async def iatec(request: Request):
+    return templates.TemplateResponse(request, "iatec.html")
+
 @app.get("/reference", response_class=HTMLResponse)
 async def reference(request: Request):
     return templates.TemplateResponse(request, "reference.html")
