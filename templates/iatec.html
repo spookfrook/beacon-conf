@@ -215,8 +215,9 @@
         .tap-zone { position: absolute; z-index: 20; }
         .tap-left   { top: 0; bottom: 0; left: 0;  width: 22%; }
         .tap-right  { top: 0; bottom: 0; right: 0; width: 22%; }
-        .tap-bottom { bottom: 0; left: 22%; right: 22%; height: 18%; z-index: 21; }
-        .tap-center { top: 0; bottom: 18%; left: 22%; right: 22%; z-index: 19; }
+        /* No invisible strip at the bottom any more: it sent the screen to the form on a stray
+           touch, which is exactly what you do to trigger fullscreen. The badge does that job. */
+        .tap-center { top: 0; bottom: 0; left: 22%; right: 22%; z-index: 19; }
 
         .paused {
             position: absolute;
@@ -305,7 +306,6 @@
 
         <div class="tap-zone tap-left"  id="tapLeft"></div>
         <div class="tap-zone tap-right" id="tapRight"></div>
-        <div class="tap-zone tap-bottom" id="tapBottom"></div>
         <div class="tap-zone tap-center" id="tapCenter"></div>
         <div class="paused" id="paused"></div>
         <div class="muted-hint" id="mutedHint">Toca la pantalla para activar el sonido</div>
@@ -469,10 +469,6 @@
 
         document.getElementById('toDemo').addEventListener('click', function (e) {
             e.stopPropagation(); goToDemo();
-        });
-        // The invisible strip the HR Tech Day page had. Kept for muscle memory, same destination.
-        document.getElementById('tapBottom').addEventListener('click', function (e) {
-            e.stopPropagation(); onTouch(); goToDemo();
         });
         document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 

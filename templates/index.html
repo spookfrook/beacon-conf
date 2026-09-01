@@ -272,6 +272,20 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     window.scrollTo(0, 0);
   }
 
+  // The browser drops fullscreen on every navigation, so this page has to ask for it again.
+  // It can only ask during a real gesture, which is why the first touch here spends one.
+  // The lasting fix is installing this from the totem's browser: as an app there is no browser
+  // UI to come back at all, and switching modes keeps it.
+  function goFullscreen() {
+    var el = document.documentElement;
+    var ask = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (ask && !document.fullscreenElement && !document.webkitFullscreenElement) {
+      try { var p = ask.call(el); if (p && p.catch) { p.catch(function () {}); } }
+      catch (e) { /* refused */ }
+    }
+  }
+  document.addEventListener('click', goFullscreen);
+
   document.addEventListener('click', function (e) {
     var t = e.target.closest('[data-go]');
     if (t) { show(t.dataset.go); }
