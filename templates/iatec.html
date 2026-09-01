@@ -468,9 +468,16 @@
             return;
         }
 
-        // Open on the call to action: whoever glances at the screen as it loads gets the ask,
-        // instead of waiting out a 24-second video before the first slide appears.
-        showSlide('cta');
+        // Cold start opens on the call to action, so whoever glances at the screen as it loads
+        // gets the ask. But arriving from the form opens on a video instead: that slide repeats
+        // the form's own headline, so landing on it looked like the switch had done nothing.
+        var cameFromForm = false;
+        try {
+            var ref = new URL(document.referrer);
+            cameFromForm = (ref.origin === location.origin && ref.pathname === '/');
+        } catch (e) { /* no referrer: treat it as a cold start */ }
+
+        if (cameFromForm) { playNextVideo(); } else { showSlide('cta'); }
     })();
     </script>
 </body>
