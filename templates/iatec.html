@@ -155,28 +155,55 @@
            canvas, so it stays a comfortable size on any screen. */
         .mode-switch {
             position: fixed;
-            right: 22px;
-            bottom: 22px;
+            right: 20px;
+            bottom: 20px;
             z-index: 100;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 9px 22px 9px 9px;
+            gap: 9px;
+            padding: 6px 16px 6px 6px;
             background: rgba(255, 254, 255, 0.94);
             border: 2px solid var(--indigo);
             border-radius: 999px;
-            box-shadow: 0 10px 30px rgba(16, 24, 32, 0.32);
+            box-shadow: 0 8px 22px rgba(16, 24, 32, 0.28);
             font-family: 'Epilogue', system-ui, sans-serif;
             font-weight: 600;
-            font-size: 17px;
+            font-size: 14px;
             color: var(--indigo);
             cursor: pointer;
-            transition: transform .1s ease;
+            transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease;
+            animation: switch-in .5s cubic-bezier(.16,1,.3,1) both;
         }
-        .mode-switch:hover { transform: translateY(-2px); }
-        .mode-switch:active { transform: translateY(0) scale(.97); }
+        .mode-switch:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(16,24,32,.34); }
+        .mode-switch:active { transform: translateY(-1px) scale(.96); }
         .mode-switch:focus-visible { outline: 3px solid var(--aqua); outline-offset: 3px; }
-        .mode-switch img { width: 58px; display: block; }
+
+        .mode-switch .sol-badge { position: relative; display: flex; flex: 0 0 40px; }
+        .mode-switch .sol-badge img { width: 40px; display: block; position: relative; z-index: 1; }
+        /* Sol's halo, breathing. The mascot system already puts a halo around her; this is that,
+           slowed down enough to be noticed and not watched. */
+        .mode-switch .sol-badge::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,212,0,.55) 0%, rgba(255,212,0,0) 70%);
+            animation: halo 3.2s ease-in-out infinite;
+        }
+        .mode-switch:hover .sol-badge::after { animation-duration: 1.6s; }
+
+        @keyframes halo {
+            0%, 100% { transform: scale(.86); opacity: .45; }
+            50%      { transform: scale(1.18); opacity: .9; }
+        }
+        @keyframes switch-in {
+            from { opacity: 0; transform: translateY(14px) scale(.94); }
+            to   { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .mode-switch, .mode-switch .sol-badge::after { animation: none; }
+            .mode-switch:hover { transform: none; }
+        }
 
         .tap-zone { position: absolute; z-index: 20; }
         .tap-left   { top: 0; bottom: 0; left: 0;  width: 22%; }
@@ -278,7 +305,7 @@
     </div>
 
     <button class="mode-switch" id="toDemo" aria-label="Ir al modo demo">
-        <img src="/static/Sol_4H.png" alt="">
+        <span class="sol-badge"><img src="/static/Sol_4H.png" alt=""></span>
         <span>Modo demo</span>
     </button>
 

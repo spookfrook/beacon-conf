@@ -114,23 +114,44 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
 /* Floating badge back to the loop. Only appears when the totem opened this page, so a visitor
    on their own phone never sees it. Sol is the button, not decoration beside a label. */
 .btn-totem {
-  position:fixed; right:18px; bottom:18px; z-index:50;
-  display:flex; align-items:center; gap:12px;
-  padding:9px 20px 9px 9px;
+  position:fixed; right:20px; bottom:20px; z-index:50;
+  display:flex; align-items:center; gap:9px;
+  padding:6px 16px 6px 6px;
   background:var(--base); border:2px solid var(--indigo); border-radius:999px;
-  box-shadow:0 10px 30px rgba(16,24,32,.28);
-  font-family:'Epilogue',sans-serif; font-weight:600; font-size:15px; color:var(--indigo);
-  cursor:pointer; transition:transform .1s ease, box-shadow .1s ease;
+  box-shadow:0 8px 22px rgba(16,24,32,.26);
+  font-family:'Epilogue',sans-serif; font-weight:600; font-size:14px; color:var(--indigo);
+  cursor:pointer;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease;
+  animation:switch-in .5s cubic-bezier(.16,1,.3,1) both;
 }
-.btn-totem:hover { transform:translateY(-2px); box-shadow:0 14px 36px rgba(16,24,32,.34); }
-.btn-totem:active { transform:translateY(0) scale(.97); }
+.btn-totem:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(16,24,32,.32); }
+.btn-totem:active { transform:translateY(-1px) scale(.96); }
 .btn-totem:focus-visible { outline:3px solid var(--aqua); outline-offset:3px; }
 /* Sol sits straight on the pill: boxing it in a disc clipped the rays. */
-.btn-totem .sol-badge {
-  display:flex; align-items:center; justify-content:center; flex:0 0 58px;
+.btn-totem .sol-badge { position:relative; display:flex; flex:0 0 40px; }
+.btn-totem .sol-badge img { width:40px; display:block; position:relative; z-index:1; }
+/* Sol's halo, breathing. The mascot system already gives her one; this is that, slowed down
+   enough to be noticed and not watched. */
+.btn-totem .sol-badge::after {
+  content:''; position:absolute; inset:-6px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,212,0,.55) 0%, rgba(255,212,0,0) 70%);
+  animation:halo 3.2s ease-in-out infinite;
 }
-.btn-totem .sol-badge img { width:58px; display:block; }
-@media (max-width:380px) { .btn-totem .label { display:none; } .btn-totem { padding:9px; } }
+.btn-totem:hover .sol-badge::after { animation-duration:1.6s; }
+
+@keyframes halo {
+  0%, 100% { transform:scale(.86); opacity:.45; }
+  50%      { transform:scale(1.18); opacity:.9; }
+}
+@keyframes switch-in {
+  from { opacity:0; transform:translateY(14px) scale(.94); }
+  to   { opacity:1; transform:none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-totem, .btn-totem .sol-badge::after { animation:none; }
+  .btn-totem:hover { transform:none; }
+}
+@media (max-width:380px) { .btn-totem .label { display:none; } .btn-totem { padding:6px; } }
 </style>
 </head>
 <body>
