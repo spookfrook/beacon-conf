@@ -746,20 +746,20 @@ async def send_signup_email(signup: Signup):
         print("Mailgun API key not configured")
         return False
     
-    # Prepare email content
+    # The database lives on the container filesystem and does not survive a restart,
+    # so this mail is the durable copy of the lead. It carries every field.
     email_content = f"""
-Nueva inscripción en conferencia:
+Nuevo contacto{f' · {signup.source}' if signup.source else ''}:
 
 Nombre: {signup.name}
 Email: {signup.email or 'No proporcionado'}
-Teléfono: {signup.phone}
+Teléfono: {signup.phone or 'No proporcionado'}
+Interés: {signup.interests or 'No marcó ninguno'}
 Descripción: {signup.description or 'No proporcionada'}
-
 
 Fecha de registro: {signup.created_at.strftime('%Y-%m-%d %H:%M:%S')}
 """
-    
-    
+
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(
@@ -767,8 +767,8 @@ Fecha de registro: {signup.created_at.strftime('%Y-%m-%d %H:%M:%S')}
                 auth=("api", MAILGUN_API_KEY),
                 data={
                     "from": f"Sol Conference <noreply@{MAILGUN_DOMAIN}>",
-                    "to": "gabriel@emptor.io",
-                    "subject": f"Nueva inscripción: {signup.name}",
+                    "to": "yusef@emptor.io, gabriel@emptor.io",
+                    "subject": f"Nuevo contacto: {signup.name}",
                     "text": email_content
                 }
             )
