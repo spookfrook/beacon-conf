@@ -247,9 +247,10 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
   } catch (e) { /* private browsing: the marker and referrer still cover it */ }
 
   function goToTotem() {
-    // Navigate first: it always works. Closing is a bonus for the tab the totem opened.
+    // Navigate, and nothing else. Closing the tab was worse than useless: in browsers where
+    // window.close() actually works the tab vanished mid-navigation, so the loop never came back
+    // and it read as a dead button. An extra tab is a much cheaper problem.
     window.location.href = '/iatec';
-    setTimeout(function () { window.close(); }, 60);
   }
 
   if (fromTotem) {
