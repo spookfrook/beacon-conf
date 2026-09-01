@@ -204,10 +204,10 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
 
     <form id="leadForm" novalidate>
       <div class="field">
-        <label for="email">Correo de trabajo</label>
+        <label for="email">Tu correo</label>
         <input type="email" id="email" name="email" inputmode="email" autocomplete="email"
-               autocapitalize="off" spellcheck="false" placeholder="nombre@tuempresa.com" required>
-        <p class="hint">Solo correos corporativos. Los personales no entran.</p>
+               autocapitalize="off" spellcheck="false" placeholder="nombre@correo.com" required>
+        <p class="hint">El que revises de verdad. Personal o de trabajo, da igual.</p>
         <p class="err" id="emailErr"></p>
       </div>
 
@@ -331,13 +331,6 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     goToTotem();
   });
 
-  // Mirrors the server list. The server is the one that decides; this just answers faster.
-  var FREE = ['gmail.com','googlemail.com','hotmail.com','hotmail.es','hotmail.com.mx','hotmail.com.ar',
-    'hotmail.com.pe','outlook.com','outlook.es','live.com','live.com.mx','msn.com','yahoo.com','yahoo.es',
-    'yahoo.com.mx','yahoo.com.ar','yahoo.com.pe','ymail.com','icloud.com','me.com','mac.com','aol.com',
-    'proton.me','protonmail.com','pm.me','zoho.com','gmx.com','gmx.es','yandex.com','mail.com','mail.ru',
-    'terra.com.pe','terra.com.mx','qq.com','163.com','naver.com','duck.com','tutanota.com'];
-
   var emailEl = document.getElementById('email');
   var nameEl = document.getElementById('name');
   var errEl = document.getElementById('emailErr');
@@ -360,9 +353,8 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
   });
 
   function localError(email) {
-    var m = /^[^@\s]+@([^@\s]+\.[^@\s]+)$/.exec(email);
-    if (!m) { return 'Ese correo no parece válido.'; }
-    if (FREE.indexOf(m[1].toLowerCase()) !== -1) { return 'Necesitamos tu correo de trabajo, no uno personal.'; }
+    // Shape only. Any provider is welcome: the address they actually read is the useful one.
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { return 'Ese correo no parece válido.'; }
     return null;
   }
 

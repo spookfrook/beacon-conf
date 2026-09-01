@@ -68,31 +68,15 @@ if 'interests' not in existing_columns:
 if 'source' not in existing_columns:
     db.execute_sql("ALTER TABLE signups ADD COLUMN source TEXT")
 
-# Booth leads are only worth capturing with a work address, so the free providers are refused.
-# Checked server-side too: the browser check is a courtesy, not the gate.
-FREE_EMAIL_DOMAINS = {
-    "gmail.com", "googlemail.com", "hotmail.com", "hotmail.es", "hotmail.com.mx",
-    "hotmail.com.ar", "hotmail.com.pe", "outlook.com", "outlook.es", "live.com",
-    "live.com.mx", "msn.com", "yahoo.com", "yahoo.es", "yahoo.com.mx", "yahoo.com.ar",
-    "yahoo.com.pe", "ymail.com", "icloud.com", "me.com", "mac.com", "aol.com",
-    "proton.me", "protonmail.com", "pm.me", "zoho.com", "gmx.com", "gmx.es",
-    "yandex.com", "mail.com", "mail.ru", "terra.com.pe", "terra.com.mx",
-    "speedy.com.ar", "fibertel.com.ar", "vtr.net", "movistar.es", "telefonica.net",
-    "qq.com", "163.com", "naver.com", "duck.com", "tutanota.com", "hushmail.com",
-}
-
-EMAIL_RE = re.compile(r"^[^@\s]+@([^@\s]+\.[^@\s]+)$")
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
-def corporate_email_error(email: str):
-    """Returns a human message when the address is not usable, or None when it is fine."""
-    email = (email or "").strip().lower()
-    match = EMAIL_RE.match(email)
-    if not match:
+def email_error(email: str):
+    """Returns a human message when the address is unusable, or None when it is fine.
+    Personal addresses are welcome: at a fair the visitor gives whatever address they
+    actually read, and refusing gmail cost us leads for no gain."""
+    if not EMAIL_RE.match((email or "").strip().lower()):
         return "Ese correo no parece válido."
-    domain = match.group(1)
-    if domain in FREE_EMAIL_DOMAINS:
-        return "Necesitamos tu correo de trabajo, no uno personal."
     return None
 
 
@@ -1061,7 +1045,7 @@ async def capture_lead(
     """Booth lead capture: a work email is the only thing we insist on. The phone is the number
     the booth is actually counting, so it is asked for, but never allowed to block a lead."""
     email = (email or "").strip()
-    error = corporate_email_error(email)
+    error = email_error(email)
     if error:
         return {"success": False, "error": error}
 
