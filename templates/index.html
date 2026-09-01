@@ -109,6 +109,16 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
 }
 .hidden { display:none; }
 .foot { text-align:center; margin-top:22px; color:rgba(255,254,255,.72); font-size:13.5px; }
+
+/* Only appears when the totem opened this page, so a visitor on their phone never sees it. */
+.btn-totem {
+  display:block; width:100%; margin-top:18px;
+  background:transparent; color:rgba(255,254,255,.85);
+  border:2px solid rgba(255,254,255,.35); border-radius:14px;
+  font-family:'Epilogue',sans-serif; font-weight:600; font-size:16px;
+  padding:16px 20px; cursor:pointer;
+}
+.btn-totem:active { transform:scale(.985); }
 </style>
 </head>
 <body>
@@ -201,6 +211,7 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     </div>
   </section>
 
+  <button class="btn-totem hidden" id="backToTotem">‹ Volver al tótem</button>
   <p class="foot">Emptor · IA-TEC 2026</p>
 </div>
 
@@ -223,6 +234,17 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     var t = e.target.closest('[data-go]');
     if (t) { show(t.dataset.go); }
   });
+
+  // Coming from the totem means this is a tab the loop opened. Closing it drops the staff back
+  // on the loop; if the browser refuses to close it, walk back to the loop instead.
+  var backBtn = document.getElementById('backToTotem');
+  if (/[?&]from=totem\b/.test(location.search)) {
+    backBtn.classList.remove('hidden');
+    backBtn.addEventListener('click', function () {
+      window.close();
+      setTimeout(function () { window.location.href = '/iatec'; }, 150);
+    });
+  }
 
   // Mirrors the server list. The server is the one that decides; this just answers faster.
   var FREE = ['gmail.com','googlemail.com','hotmail.com','hotmail.es','hotmail.com.mx','hotmail.com.ar',

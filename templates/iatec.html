@@ -376,10 +376,11 @@
         document.getElementById('tapCenter').addEventListener('click', function (e) {
             e.stopPropagation(); onTouch(); togglePause();
         });
-        // The booth staff use this to jump from the screen to the signup form.
+        // The booth staff use this to jump from the screen to the signup form. The marker tells
+        // that page it was opened from the totem, so it can offer a way back.
         document.getElementById('tapBottom').addEventListener('click', function (e) {
             e.stopPropagation(); onTouch();
-            window.open('/', '_blank');
+            window.open('/?from=totem', '_blank');
         });
         document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
