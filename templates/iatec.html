@@ -151,6 +151,33 @@
         .muted-hint.on { display: block; }
 
         /* Same zones the HR Tech Day page had: staff rely on them at the booth. */
+        /* Mode switch, twin of the one on the form. Fixed to the viewport, not to the design
+           canvas, so it stays a comfortable size on any screen. */
+        .mode-switch {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 22px 9px 9px;
+            background: rgba(255, 254, 255, 0.94);
+            border: 2px solid var(--indigo);
+            border-radius: 999px;
+            box-shadow: 0 10px 30px rgba(16, 24, 32, 0.32);
+            font-family: 'Epilogue', system-ui, sans-serif;
+            font-weight: 600;
+            font-size: 17px;
+            color: var(--indigo);
+            cursor: pointer;
+            transition: transform .1s ease;
+        }
+        .mode-switch:hover { transform: translateY(-2px); }
+        .mode-switch:active { transform: translateY(0) scale(.97); }
+        .mode-switch:focus-visible { outline: 3px solid var(--aqua); outline-offset: 3px; }
+        .mode-switch img { width: 58px; display: block; }
+
         .tap-zone { position: absolute; z-index: 20; }
         .tap-left   { top: 0; bottom: 0; left: 0;  width: 22%; }
         .tap-right  { top: 0; bottom: 0; right: 0; width: 22%; }
@@ -249,6 +276,11 @@
         <div class="paused" id="paused"></div>
         <div class="muted-hint" id="mutedHint">Toca la pantalla para activar el sonido</div>
     </div>
+
+    <button class="mode-switch" id="toDemo" aria-label="Ir al modo demo">
+        <img src="/static/Sol_4H.png" alt="">
+        <span>Modo demo</span>
+    </button>
 
     <script>
     (function () {
@@ -376,11 +408,16 @@
         document.getElementById('tapCenter').addEventListener('click', function (e) {
             e.stopPropagation(); onTouch(); togglePause();
         });
-        // The booth staff use this to jump from the screen to the signup form. The marker tells
-        // that page it was opened from the totem, so it can offer a way back.
+        // Switching modes navigates in place, both ways, so the two badges are a toggle and no
+        // stray tabs pile up on the totem. The marker tells the form where it came from.
+        function goToDemo() { window.location.href = '/?from=totem'; }
+
+        document.getElementById('toDemo').addEventListener('click', function (e) {
+            e.stopPropagation(); goToDemo();
+        });
+        // The invisible strip the HR Tech Day page had. Kept for muscle memory, same destination.
         document.getElementById('tapBottom').addEventListener('click', function (e) {
-            e.stopPropagation(); onTouch();
-            window.open('/?from=totem', '_blank');
+            e.stopPropagation(); onTouch(); goToDemo();
         });
         document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
