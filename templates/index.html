@@ -84,13 +84,14 @@ ol.steps li::before {
 }
 
 label { display:block; font-weight:600; font-size:15px; margin-bottom:7px; color:var(--ink); }
-input[type=email], input[type=text] {
+input[type=email], input[type=text], input[type=tel] {
   width:100%; font-family:'Epilogue',sans-serif; font-size:17px;
   padding:15px 16px; border:2px solid var(--line); border-radius:12px; background:var(--base);
 }
 input:focus { outline:none; border-color:var(--indigo); }
 .field { margin-bottom:20px; }
 .hint { font-size:13.5px; color:var(--muted); margin-top:7px; }
+.opt { font-weight:400; color:var(--muted); font-size:13px; margin-left:4px; }
 .err { font-size:14px; color:#B3261E; margin-top:8px; font-weight:500; display:none; }
 .err.on { display:block; }
 
@@ -199,7 +200,7 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
   <section class="card hidden" id="view-contacto">
     <button class="back" data-go="home">‹ Volver</button>
     <h2>Déjame tu correo</h2>
-    <p class="sub">Con eso basta. Si quieres, marca qué te interesa y te escribimos sobre eso y no sobre otra cosa.</p>
+    <p class="sub">Con el correo me basta. Lo demás es opcional y sirve para escribirte de lo que te interesa, y no de otra cosa.</p>
 
     <form id="leadForm" novalidate>
       <div class="field">
@@ -214,6 +215,13 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
         <label for="name">Tu nombre</label>
         <input type="text" id="name" name="name" autocomplete="name" placeholder="Se completa solo">
         <p class="hint">Lo saco de tu correo. Corrígelo si le erré.</p>
+      </div>
+
+      <div class="field">
+        <label for="phone">Tu celular <span class="opt">opcional</span></label>
+        <input type="tel" id="phone" name="phone" inputmode="tel" autocomplete="tel"
+               placeholder="+51 999 999 999">
+        <p class="hint">Si me lo dejas, te escribo por WhatsApp en vez de correo.</p>
       </div>
 
       <fieldset>
@@ -375,6 +383,7 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     var body = new FormData();
     body.append('email', email);
     body.append('name', nameEl.value.trim());
+    body.append('phone', document.getElementById('phone').value.trim());
     body.append('interests', picked);
 
     submitBtn.disabled = true;

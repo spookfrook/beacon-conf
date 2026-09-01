@@ -1055,18 +1055,24 @@ async def get_voice_memo(signup_id: str, token: str):
 async def capture_lead(
     email: str = Form(""),
     name: str = Form(""),
+    phone: str = Form(""),
     interests: str = Form(""),
 ):
-    """Booth lead capture: a work email is all we ask for, interests are optional."""
+    """Booth lead capture: a work email is the only thing we insist on. The phone is the number
+    the booth is actually counting, so it is asked for, but never allowed to block a lead."""
     email = (email or "").strip()
     error = corporate_email_error(email)
     if error:
         return {"success": False, "error": error}
 
+    phone = re.sub(r"[^\d+]", "", phone or "")
+    if len(re.sub(r"\D", "", phone)) < 6:
+        phone = ""
+
     lead = Signup.create(
         name=(name or "").strip() or name_from_email(email),
         email=email.lower(),
-        phone=None,
+        phone=phone or None,
         candidate=None,
         description=None,
         voice_memo_path=None,
