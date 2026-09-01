@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emptor · IA-TEC 2026</title>
+    <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&family=MuseoModerno:wght@400;500;700&display=swap" rel="stylesheet">
@@ -149,9 +150,34 @@
         }
         .muted-hint.on { display: block; }
 
-        .tap-zone { position: absolute; top: 0; bottom: 0; z-index: 20; }
-        .tap-left  { left: 0;  width: 22%; }
-        .tap-right { right: 0; width: 22%; }
+        /* Same zones the HR Tech Day page had: staff rely on them at the booth. */
+        .tap-zone { position: absolute; z-index: 20; }
+        .tap-left   { top: 0; bottom: 0; left: 0;  width: 22%; }
+        .tap-right  { top: 0; bottom: 0; right: 0; width: 22%; }
+        .tap-bottom { bottom: 0; left: 22%; right: 22%; height: 18%; z-index: 21; }
+        .tap-center { top: 0; bottom: 18%; left: 22%; right: 22%; z-index: 19; }
+
+        .paused {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px; height: 150px;
+            border-radius: 50%;
+            background: rgba(16,24,32,0.42);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            pointer-events: none;
+            z-index: 25;
+        }
+        .paused.on { display: flex; }
+        .paused::before, .paused::after {
+            content: '';
+            width: 22px; height: 68px;
+            background: #FFFEFF;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -218,7 +244,10 @@
 
         <div class="tap-zone tap-left"  id="tapLeft"></div>
         <div class="tap-zone tap-right" id="tapRight"></div>
-        <div class="muted-hint" id="mutedHint">Toca la pantalla para el sonido</div>
+        <div class="tap-zone tap-bottom" id="tapBottom"></div>
+        <div class="tap-zone tap-center" id="tapCenter"></div>
+        <div class="paused" id="paused"></div>
+        <div class="muted-hint" id="mutedHint">Toca la pantalla para activar el sonido</div>
     </div>
 
     <script>
@@ -238,7 +267,7 @@
 
         // The call to action comes back every other break; the rest rotate behind it.
         var ROTATION = ['charla', 'sol', 'cobertura', 'verdad'];
-        var SLIDE_MS = 8000;
+        var SLIDE_MS = 10000;
 
         var player = document.getElementById('player');
         var stage = document.getElementById('stage');
@@ -248,11 +277,12 @@
             slides[el.dataset.slide] = el;
         });
 
+        var pausedEl = document.getElementById('paused');
         var videoIndex = 0;
-        var breakCount = 0;
+        var breakCount = 1;   // the screen opens on the call to action, so the first break rotates
         var rotationIndex = 0;
         var slideTimer = null;
-        var soundBlocked = false;
+        var isPaused = false;
 
         function fitStage() {
             var scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
@@ -267,18 +297,23 @@
             Object.keys(slides).forEach(function (k) { slides[k].classList.remove('on'); });
         }
 
-        // Try with sound; if the browser refuses, fall back to muted so the totem is never dark.
+        // Ask for sound on every piece, not just the first. The autoplay policy loosens once the
+        // screen has been touched or the browser has seen enough playback, and retrying each time
+        // means the sound comes back on its own instead of staying muted all day.
         function playVideo(url) {
             clearScreen();
             player.classList.add('on');
             player.src = url;
-            player.muted = soundBlocked;
-            player.play().catch(function () {
-                soundBlocked = true;
-                hint.classList.add('on');
-                player.muted = true;
-                player.play().catch(function () { next(); });
-            });
+            player.muted = false;
+            var started = player.play();
+            if (started && started.catch) {
+                started.catch(function () {
+                    // Refused with sound: play muted rather than leave the screen dark, and say so.
+                    player.muted = true;
+                    hint.classList.add('on');
+                    player.play().catch(function () { next(); });
+                });
+            }
         }
 
         function showSlide(id) {
@@ -302,23 +337,49 @@
         player.addEventListener('ended', next);
         player.addEventListener('error', next);
 
-        // First touch recovers the sound the autoplay policy took away.
+        // Any touch counts as the gesture the autoplay policy was waiting for.
         function onTouch() {
-            if (soundBlocked) {
-                soundBlocked = false;
+            if (player.muted) {
                 player.muted = false;
                 hint.classList.remove('on');
             }
         }
+
+        function resume() {
+            isPaused = false;
+            pausedEl.classList.remove('on');
+        }
+
+        function togglePause() {
+            if (isPaused) {
+                resume();
+                if (player.classList.contains('on')) { player.play(); }
+                else { slideTimer = setTimeout(next, SLIDE_MS); }
+            } else {
+                isPaused = true;
+                pausedEl.classList.add('on');
+                if (player.classList.contains('on')) { player.pause(); }
+                else { clearTimeout(slideTimer); }
+            }
+        }
+
         document.addEventListener('click', onTouch);
         document.getElementById('tapLeft').addEventListener('click', function (e) {
-            e.stopPropagation(); onTouch();
+            e.stopPropagation(); onTouch(); resume();
             videoIndex = (videoIndex - 2 + VIDEOS.length) % VIDEOS.length;
             playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
         });
         document.getElementById('tapRight').addEventListener('click', function (e) {
-            e.stopPropagation(); onTouch();
+            e.stopPropagation(); onTouch(); resume();
             playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
+        });
+        document.getElementById('tapCenter').addEventListener('click', function (e) {
+            e.stopPropagation(); onTouch(); togglePause();
+        });
+        // The booth staff use this to jump from the screen to the signup form.
+        document.getElementById('tapBottom').addEventListener('click', function (e) {
+            e.stopPropagation(); onTouch();
+            window.open('/', '_blank');
         });
         document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
@@ -333,7 +394,9 @@
             return;
         }
 
-        playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
+        // Open on the call to action: whoever glances at the screen as it loads gets the ask,
+        // instead of waiting out a 24-second video before the first slide appears.
+        showSlide('cta');
     })();
     </script>
 </body>
