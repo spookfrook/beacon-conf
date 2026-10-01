@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+*.db
+*.sqlite
+*.sqlite3
+voice_memos/
+__pycache__/
+.venv/
+docs/

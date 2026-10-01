@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emptor · IA-TEC 2026</title>
+    <title>Emptor · HR Talent Day 2026</title>
     <link rel="icon" href="/static/icon-192.png">
     <!-- Installed from the totem's browser with "Add to home screen", this runs with no browser
          UI and no Android navigation bar, and stays that way across navigations. -->
@@ -167,15 +167,16 @@
             z-index: 100;
             display: flex;
             align-items: center;
-            gap: 9px;
-            padding: 6px 16px 6px 6px;
+            gap: 12px;
+            min-height: 72px;
+            padding: 8px 26px 8px 8px;
             background: rgba(255, 254, 255, 0.94);
             border: 2px solid var(--indigo);
             border-radius: 999px;
             box-shadow: 0 8px 22px rgba(16, 24, 32, 0.28);
             font-family: 'Epilogue', system-ui, sans-serif;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 20px;
             color: var(--indigo);
             cursor: pointer;
             transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease;
@@ -185,8 +186,8 @@
         .mode-switch:active { transform: translateY(-1px) scale(.96); }
         .mode-switch:focus-visible { outline: 3px solid var(--aqua); outline-offset: 3px; }
 
-        .mode-switch .sol-badge { position: relative; display: flex; flex: 0 0 40px; }
-        .mode-switch .sol-badge img { width: 40px; display: block; position: relative; z-index: 1; }
+        .mode-switch .sol-badge { position: relative; display: flex; flex: 0 0 56px; }
+        .mode-switch .sol-badge img { width: 56px; display: block; position: relative; z-index: 1; }
         /* Sol's halo, breathing. The mascot system already puts a halo around her; this is that,
            slowed down enough to be noticed and not watched. */
         .mode-switch .sol-badge::after {
@@ -210,6 +211,34 @@
         @media (prefers-reduced-motion: reduce) {
             .mode-switch, .mode-switch .sol-badge::after { animation: none; }
             .mode-switch:hover { transform: none; }
+        }
+
+        /* Fullscreen gets its own button, opposite corner, same pill. */
+        .fs-switch { position: fixed; z-index: 100; left: 16px; bottom: 20px; width: 44px; height: 44px; padding: 10px; border: 1px solid rgba(255,255,255,.35); border-radius: 10px; background: rgba(16,24,32,.3); color: #fff; cursor: pointer; }
+        .fs-switch:hover, .fs-switch:focus-visible { background: rgba(16,24,32,.7); outline: 2px solid var(--aqua); outline-offset: 2px; }
+        .fs-switch svg { width: 22px; height: 22px; display: block; }
+        #fsLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 112px;
+            transform: translateX(-50%);
+            z-index: 101;
+            max-width: 90vw;
+            padding: 16px 26px;
+            border-radius: 16px;
+            background: var(--ink);
+            color: var(--base);
+            font-family: 'Epilogue', system-ui, sans-serif;
+            font-size: 20px;
+            display: none;
+        }
+        .toast.on { display: block; }
+        @media (max-width: 600px) {
+            .mode-switch { font-size: 14px; min-height: 56px; padding: 8px 14px; bottom: 12px; right: 12px; }
+            .fs-switch { left: 12px; bottom: 18px; }
+            .mode-switch .sol-badge { display: none; }
         }
 
         /* The form lives here as a same-origin frame instead of a separate page. Swapping to it
@@ -274,7 +303,7 @@
 
         <section class="slide s-indigo" data-slide="charla">
             <img class="pattern" src="/static/PATRON-CIRCULOS-white.png" alt="">
-            <div class="kicker" style="color:var(--aqua)">Hoy · 16:15</div>
+            <div class="kicker" style="color:var(--aqua)">HR Talent Day · 30 septiembre 2026<br>14:30 a 15:00 · Sala 1</div>
             <div>
                 <div class="accent-rule" style="margin-bottom:44px"></div>
                 <h2>Me rodeé de agentes para volver a la gente.</h2>
@@ -332,6 +361,12 @@
         <span id="switchLabel">Modo demo</span>
     </button>
 
+    <button class="fs-switch" id="fsToggle" title="Pantalla completa" aria-label="Pantalla completa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path id="fsIcon" d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>
+        <span id="fsLabel">Pantalla completa</span>
+    </button>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
     <script>
     (function () {
         var CDN = 'https://res.cloudinary.com/dsbzveh0y/video/upload/f_auto,q_auto/';
@@ -368,6 +403,10 @@
         var sinceBreak = 0;
         var slideTimer = null;
         var isPaused = false;
+        var playToken = 0;      // bumped on every screen change, so late promises and events are ignored
+        var advanced = true;    // the current piece already handed over; nothing may advance it twice
+        var stallTimer = null;
+        var STALL_MS = 15000;
 
         function fitStage() {
             var scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
@@ -378,6 +417,10 @@
 
         function clearScreen() {
             clearTimeout(slideTimer);
+            clearTimeout(stallTimer); stallTimer = null;
+            playToken++;
+            advanced = true;
+            player.pause();
             player.classList.remove('on');
             Object.keys(slides).forEach(function (k) { slides[k].classList.remove('on'); });
         }
@@ -390,15 +433,41 @@
             player.classList.add('on');
             player.src = url;
             player.muted = false;
+            advanced = false;
+            var token = playToken;
+            armStall();
             var started = player.play();
             if (started && started.catch) {
                 started.catch(function () {
+                    // A newer piece took over, or the form or a pause stopped this one on purpose.
+                    if (token !== playToken || demoOn || isPaused) { return; }
                     // Refused with sound: play muted rather than leave the screen dark, and say so.
                     player.muted = true;
                     hint.classList.add('on');
-                    player.play().catch(function () { next(); });
+                    player.play().catch(function () { failVideo(token); });
                 });
             }
+        }
+
+        // A piece that cannot start or stalls gives way to a slide, so a
+        // dead network rests on slides instead of spinning through the reel.
+        function armStall() {
+            if (stallTimer) { return; }
+            var token = playToken;
+            stallTimer = setTimeout(function () { stallTimer = null; failVideo(token); }, STALL_MS);
+        }
+
+        function failVideo(token) {
+            if (token !== playToken || advanced || demoOn || isPaused) { return; }
+            advanced = true;
+            sinceBreak = 0;
+            showSlide(SLIDE_RING[ringIndex++ % SLIDE_RING.length]);
+        }
+
+        function endVideo() {
+            if (advanced) { return; }
+            advanced = true;
+            next();
         }
 
         function showSlide(id) {
@@ -425,27 +494,61 @@
             }
         }
 
-        player.addEventListener('ended', next);
-        player.addEventListener('error', next);
+        player.addEventListener('ended', endVideo);
+        player.addEventListener('error', function () { failVideo(playToken); });
+        player.addEventListener('playing', function () { clearTimeout(stallTimer); stallTimer = null; });
+        player.addEventListener('waiting', function () { if (!demoOn && !isPaused && !advanced) { armStall(); } });
+        player.addEventListener('stalled', function () { if (!demoOn && !isPaused && !advanced) { armStall(); } });
 
-        // The fullscreen request needs a real gesture, so the first touch spends it: it takes the
-        // sound back and, on the Android panel, hides the address bar and the navigation bar.
-        function goFullscreen() {
-            var el = document.documentElement;
-            var ask = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-            if (ask && !document.fullscreenElement && !document.webkitFullscreenElement) {
-                try { var p = ask.call(el); if (p && p.catch) { p.catch(function () {}); } }
-                catch (e) { /* refused: the installed app covers this anyway */ }
-            }
+        // Fullscreen is its own button, for the video and the form alike. Asking on every touch
+        // pulled the panel straight back in whenever staff tried to leave it.
+        var fsLabel = document.getElementById('fsLabel');
+        var toast = document.getElementById('toast');
+        var toastTimer = null;
+
+        function isFullscreen() {
+            return !!(document.fullscreenElement || document.webkitFullscreenElement);
         }
 
-        // Any touch counts as the gesture the autoplay policy was waiting for.
+        function say(text) {
+            toast.textContent = text;
+            toast.classList.add('on');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () { toast.classList.remove('on'); }, 3500);
+        }
+
+        function syncFullscreen() {
+            var active = isFullscreen();
+            var label = active ? 'Salir de pantalla completa' : 'Pantalla completa';
+            fsLabel.textContent = label;
+            document.getElementById('fsToggle').setAttribute('aria-label', label);
+            document.getElementById('fsToggle').title = label;
+            document.getElementById('fsIcon').setAttribute('d', active ? 'M3 8h5V3m8 0v5h5M8 21v-5H3m13 5v-5h5' : 'M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5');
+        }
+
+        function toggleFullscreen() {
+            var el = document.documentElement;
+            var leaving = isFullscreen();
+            var fn = leaving ? (document.exitFullscreen || document.webkitExitFullscreen)
+                             : (el.requestFullscreen || el.webkitRequestFullscreen);
+            if (!fn) { say('Este navegador no permite pantalla completa.'); return; }
+            try {
+                var p = fn.call(leaving ? document : el);
+                if (p && p.catch) { p.catch(function () { say('No se pudo cambiar la pantalla completa.'); }); }
+            } catch (e) { say('No se pudo cambiar la pantalla completa.'); }
+        }
+
+        document.addEventListener('fullscreenchange', syncFullscreen);
+        document.addEventListener('webkitfullscreenchange', syncFullscreen);
+        syncFullscreen();
+
+        // Any touch counts as the gesture the autoplay policy was waiting for. Returns true when
+        // the touch was spent bringing back the sound of a playing video, so it does nothing else.
         function onTouch() {
-            goFullscreen();
-            if (player.muted) {
-                player.muted = false;
-                hint.classList.remove('on');
-            }
+            if (!player.muted) { return false; }
+            player.muted = false;
+            hint.classList.remove('on');
+            return player.classList.contains('on');
         }
 
         function resume() {
@@ -456,7 +559,7 @@
         function togglePause() {
             if (isPaused) {
                 resume();
-                if (player.classList.contains('on')) { player.play(); }
+                if (player.classList.contains('on')) { armStall(); player.play().catch(function () {}); }
                 else { slideTimer = setTimeout(next, SLIDE_MS); }
             } else {
                 isPaused = true;
@@ -477,7 +580,8 @@
             playVideo(VIDEOS[videoIndex++ % VIDEOS.length]);
         });
         document.getElementById('tapCenter').addEventListener('click', function (e) {
-            e.stopPropagation(); onTouch(); togglePause();
+            e.stopPropagation();
+            if (!onTouch()) { togglePause(); }
         });
         // Switching modes shows or hides the frame. Nothing navigates, so whatever fullscreen the
         // panel granted stays granted: this is the only way the browser bar never comes back
@@ -487,11 +591,12 @@
         var demoOn = false;
 
         function showDemo() {
-            if (!demoFrame.getAttribute('src')) { demoFrame.src = '/?embed=1'; }
+            if (!demoFrame.getAttribute('src')) { demoFrame.src = '/?embed=1&v=hrtd-20260930-ux2'; }
             demoFrame.classList.add('on');
             demoOn = true;
             switchLabel.textContent = 'Modo video';
             clearTimeout(slideTimer);          // hold the loop while the form is up front
+            clearTimeout(stallTimer); stallTimer = null;
             player.pause();
         }
 
@@ -499,15 +604,28 @@
             demoFrame.classList.remove('on');
             demoOn = false;
             switchLabel.textContent = 'Modo demo';
+            // Leaving on purpose: the form clears a finished contact, a half-typed one stays as is.
+            if (demoFrame.contentWindow) {
+                demoFrame.contentWindow.postMessage({ type: 'iatec:exit' }, location.origin);
+            }
             if (isPaused) { return; }
-            if (player.classList.contains('on')) { player.play().catch(function () {}); }
+            if (player.classList.contains('on')) { armStall(); player.play().catch(function () {}); }
             else { slideTimer = setTimeout(next, SLIDE_MS); }
         }
 
         document.getElementById('toDemo').addEventListener('click', function (e) {
             e.stopPropagation();
-            goFullscreen();
             if (demoOn) { showVideo(); } else { showDemo(); }
+        });
+        document.getElementById('fsToggle').addEventListener('click', function (e) {
+            e.stopPropagation();
+            onTouch();
+            toggleFullscreen();
+        });
+        // The form asks to come back through here instead of navigating inside its own frame.
+        window.addEventListener('message', function (e) {
+            if (e.origin !== location.origin || e.source !== demoFrame.contentWindow) { return; }
+            if (e.data && e.data.type === 'iatec:video' && demoOn) { showVideo(); }
         });
         document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 

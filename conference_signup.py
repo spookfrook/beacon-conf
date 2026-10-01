@@ -32,7 +32,10 @@ from livekit import api
 import httpx
 
 # Database initialization
-db = pw.SqliteDatabase('conference_signups.db')
+DATABASE_PATH = os.getenv('DATABASE_PATH', 'conference_signups.db')
+Path(DATABASE_PATH).parent.mkdir(parents=True, exist_ok=True)
+EVENT_SOURCE = os.getenv('EVENT_SOURCE', 'hr-talent-day-2026')
+db = pw.SqliteDatabase(DATABASE_PATH)
 
 class BaseModelDB(pw.Model):
     class Meta:
@@ -1063,7 +1066,7 @@ async def capture_lead(
         talk_to_sol=False,
         want_report_example=False,
         interests=(interests or "").strip() or None,
-        source="iatec-2026",
+        source=EVENT_SOURCE,
     )
 
     try:

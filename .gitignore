@@ -36,3 +36,5 @@ certs/
 *.pem
 *.key
 *.crt
+# Local secret references
+.env.op

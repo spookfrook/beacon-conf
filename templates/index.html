@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sol by Emptor · IA-TEC 2026</title>
+<title>Sol by Emptor · HR Talent Day 2026</title>
 <link rel="icon" href="/static/icon-192.png">
 <!-- Same manifest as the loop, so switching modes stays inside the installed app. -->
 <link rel="manifest" href="/static/manifest.json">
@@ -262,7 +262,7 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     <span class="sol-badge"><img src="/static/Sol_4H.png" alt=""></span>
     <span class="label">Modo video</span>
   </button>
-  <p class="foot"><a href="/iatec" id="footTotem">Emptor · IA-TEC 2026</a></p>
+  <p class="foot"><a href="/iatec" id="footTotem">Emptor · HR Talent Day · 30 septiembre 2026</a></p>
 </div>
 
 <script>
@@ -274,7 +274,10 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     done: document.getElementById('view-done')
   };
 
+  var current = 'home';
+
   function show(id) {
+    current = id;
     Object.keys(views).forEach(function (k) { views[k].classList.add('hidden'); });
     views[id].classList.remove('hidden');
     window.scrollTo(0, 0);
@@ -292,7 +295,6 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
       catch (e) { /* refused */ }
     }
   }
-  document.addEventListener('click', goFullscreen);
 
   document.addEventListener('click', function (e) {
     var t = e.target.closest('[data-go]');
@@ -313,12 +315,49 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
     // Navigate, and nothing else. Closing the tab was worse than useless: in browsers where
     // window.close() actually works the tab vanished mid-navigation, so the loop never came back
     // and it read as a dead button. An extra tab is a much cheaper problem.
+    // Inside the loop's frame, ask the loop to show itself: navigating would nest a second loop
+    // inside this frame.
+    if (embedded) {
+      window.parent.postMessage({ type: 'iatec:video' }, location.origin);
+      return;
+    }
     window.location.href = '/iatec';
   }
 
   // Inside the loop's frame the parent already shows the switch, so this page keeps its own
   // hidden: two badges stacked in the same corner would just fight each other.
   var embedded = /[?&]embed=1\b/.test(location.search);
+
+  // One request on the first touch, never again: asking on every touch pulled the screen back
+  // into fullscreen whenever someone tried to leave it. Inside the frame the loop owns it.
+  if (!embedded) {
+    document.addEventListener('click', function once() {
+      document.removeEventListener('click', once);
+      goFullscreen();
+    });
+  } else {
+    document.body.style.paddingBottom = '120px';   // room for the loop's buttons
+  }
+
+  // The loop says when someone leaves on purpose: a finished contact is cleared for the next
+  // visitor, anything half-typed or still sending is left exactly as it was.
+  window.addEventListener('message', function (e) {
+    if (!embedded || e.source !== window.parent || e.origin !== location.origin) { return; }
+    if (e.data && e.data.type === 'iatec:exit' && current === 'done') {
+      document.getElementById('doneName').textContent = 'Anotado';
+      show('home');
+    }
+  });
+
+  // The dashboard lives on another site, so on the totem it opens outside the kiosk. Still
+  // available, but whoever taps it is told how to come back first.
+  if (embedded || fromTotem) {
+    document.getElementById('dashLink').addEventListener('click', function (e) {
+      if (!window.confirm('El dashboard se abre en otra pestaña, fuera del kiosco. Para volver, cierra esa pestaña. ¿Abrir?')) {
+        e.preventDefault();
+      }
+    });
+  }
 
   if (fromTotem && !embedded) {
     backBtn.classList.remove('hidden');
@@ -360,6 +399,7 @@ legend { font-weight:600; font-size:15px; margin-bottom:10px; color:var(--ink); 
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
+    if (submitBtn.disabled) { return; }
     var email = emailEl.value.trim();
     var problem = localError(email);
     if (problem) {
